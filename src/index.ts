@@ -13,15 +13,18 @@ export * from "./threshold/models.js";
 // URSSAF
 export * from "./urssaf/models.js";
 export * from "./urssaf/rates.js";
+export { isActivityType } from "./urssaf/rates.js";
 
 // VAT
 export * from "./vat/models.js";
 export {
   type VatCode,
   isValidVatCode,
+  isDomTomVatCode,
   type VatInfo,
   getVatInfo,
   hasVat,
+  getVatRatePercentage,
 } from "./vat/utils.js";
 export * from "./vat/calculations.js";
 export * from "./vat/rules.js";
