@@ -25,3 +25,25 @@ export {
 } from "./vat/utils.js";
 export * from "./vat/calculations.js";
 export * from "./vat/rules.js";
+
+// Ports (interfaces for data access)
+export * from "./ports/index.js";
+
+// Services
+export {
+  ThresholdMonitoringService,
+  ThresholdMonitoringServiceLayer,
+  type ThresholdMonitoringServiceInterface,
+} from "./threshold/service.js";
+export {
+  UrssafService,
+  UrssafServiceLayer,
+  NoRevenueDataError,
+  type UrssafServiceInterface,
+} from "./urssaf/service.js";
+export {
+  VatService,
+  VatServiceLayer,
+  InvalidVatCodeError,
+  type VatServiceInterface,
+} from "./vat/service.js";

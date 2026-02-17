@@ -1,11 +1,12 @@
 import type { Monetary } from "monetary";
-import type { Period } from "../models.js";
+import type { Period, UserId } from "../models.js";
 import type { VatCode } from "./utils.js";
 
 export type VatRegime = "franchise" | "reel_simplifie" | "reel_normal";
 export type VatDeclarationFrequency = "monthly" | "quarterly" | "annual";
 
 export type ComputeVatDeclarationInput = {
+  readonly userId: UserId;
   readonly period: Period;
   readonly regime: VatRegime;
 };

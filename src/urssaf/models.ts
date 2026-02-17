@@ -1,10 +1,11 @@
 import type { Monetary } from "monetary";
-import type { Period } from "../models.js";
+import type { Period, UserId } from "../models.js";
 import type { ActivityType } from "./rates.js";
 
 export type DeclarationFrequency = "monthly" | "quarterly";
 
 export type ComputeUrssafDeclarationInput = {
+  readonly userId: UserId;
   readonly period: Period;
   readonly activityType: ActivityType;
   readonly hasAcre: boolean;
