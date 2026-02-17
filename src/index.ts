@@ -29,6 +29,9 @@ export * from "./vat/rules.js";
 // Ports (interfaces for data access)
 export * from "./ports/index.js";
 
+// Bespoke (in-memory) data layers
+export * from "./bespoke/index.js";
+
 // Services
 export {
   ThresholdMonitoringService,
