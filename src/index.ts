@@ -1,8 +1,20 @@
 // Models & core types
 export * from "./models.js";
 
-// Chart of accounts (PCG)
+// Full PCG Chart of Accounts (comprehensive, all classes 1-8)
+export * from "./pcg/index.js";
+
+// Legacy chart of accounts (backward compatibility)
 export * from "./chart-of-accounts.js";
+
+// Double-entry bookkeeping engine
+export * from "./engine/index.js";
+
+// Exercice (fiscal year) management
+export * from "./exercice/index.js";
+
+// Amortization engine
+export * from "./amortization/index.js";
 
 // Regime details & thresholds
 export * from "./regime/regime-details.js";
@@ -37,6 +49,21 @@ export * from "./vat/tic-models.js";
 // Financial Statements
 export * from "./financial-statements/index.js";
 
+// SIG (Soldes Intermédiaires de Gestion)
+export * from "./financial-statements/sig.js";
+
+// FEC (Fichier des Écritures Comptables)
+export * from "./fec/index.js";
+
+// Liasse Fiscale (IS)
+export * from "./liasse-fiscale/index.js";
+
+// IS Computation (2572-SD)
+export * from "./is-solde/index.js";
+
+// BNC 2035 Declaration
+export * from "./bnc-2035/index.js";
+
 // Journal Entry Validation
 export * from "./journal/index.js";
 
@@ -45,15 +72,6 @@ export * from "./ports/index.js";
 
 // Bespoke (in-memory) data layers
 export * from "./bespoke/index.js";
-
-// FEC (Fichier des Écritures Comptables)
-export * from "./fec/index.js";
-
-// Liasse Fiscale (2065 + 2050-2059)
-export * from "./liasse-fiscale/index.js";
-
-// IS Solde (2572-SD)
-export * from "./is-solde/index.js";
 
 // Services
 export {
