@@ -8,3 +8,5 @@ export {
   RateNotFoundError,
   type UrssafRatesPortInterface,
 } from "./urssaf-rates.port";
+export { JournalDataPort, type JournalDataPortInterface } from "./journal-data.port";
+export { VatSectorPort, type VatSectorPortInterface } from "./vat-sector.port";

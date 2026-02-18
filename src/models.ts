@@ -58,6 +58,9 @@ export type JournalLineModel = {
   readonly creditAmount: MonetaryAmount | null;
   readonly description: string | null;
   readonly vatCode: string | null;
+  readonly sectorId: number | null;
+  readonly taxeAssimileeType: string | null;
+  readonly acciseType: string | null;
   readonly createdAt: Date;
 };
 

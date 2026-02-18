@@ -61,3 +61,18 @@ export {
   InvalidVatCodeError,
   type VatServiceInterface,
 } from "./vat/service.js";
+
+// VAT Declaration Generators (CA3/CA12)
+export {
+  Ca3GeneratorService,
+  Ca3GeneratorServiceLayer,
+  Ca3GenerationError,
+  type Ca3GeneratorServiceInterface,
+  type GenerateTerInput,
+  type GenerateAnnexeAInput,
+  type GenerateTicInput,
+  Ca12GeneratorService,
+  Ca12GeneratorServiceLayer,
+  Ca12GenerationError,
+  type Ca12GeneratorServiceInterface,
+} from "./vat/declarations/index.js";
