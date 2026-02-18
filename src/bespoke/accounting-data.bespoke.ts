@@ -19,9 +19,7 @@ export function makeBespokeAccountingDataLayer(data: BespokeAccountingData) {
     AccountingDataPort,
     AccountingDataPort.of({
       getAccountBalancesByClass: (_userId: UserId, _period: Period, accountClass: number) =>
-        Effect.succeed(
-          data.balances.filter((b) => b.accountCode.startsWith(String(accountClass))),
-        ),
+        Effect.succeed(data.balances.filter((b) => b.accountCode.startsWith(String(accountClass)))),
 
       getAccountBalances: (_userId: UserId, _period: Period, accountCodes?: string[]) =>
         Effect.succeed(
@@ -33,17 +31,12 @@ export function makeBespokeAccountingDataLayer(data: BespokeAccountingData) {
       findJournalEntriesByPeriod: (userId: UserId, period: Period) =>
         Effect.succeed(
           data.entries.filter(
-            (e) =>
-              e.userId === userId &&
-              e.date >= period.startDate &&
-              e.date <= period.endDate,
+            (e) => e.userId === userId && e.date >= period.startDate && e.date <= period.endDate,
           ),
         ),
 
       findJournalLinesByEntryIds: (_userId: UserId, entryIds: number[]) =>
-        Effect.succeed(
-          data.lines.filter((l) => entryIds.includes(l.journalEntryId)),
-        ),
+        Effect.succeed(data.lines.filter((l) => entryIds.includes(l.journalEntryId))),
     }),
   );
 }

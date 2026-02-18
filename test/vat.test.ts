@@ -123,10 +123,7 @@ describe("VatService", () => {
   });
 
   it("computes VAT with multiple rates", async () => {
-    const entries = [
-      makeEntry(1, new Date(2025, 1, 10)),
-      makeEntry(2, new Date(2025, 1, 20)),
-    ];
+    const entries = [makeEntry(1, new Date(2025, 1, 10)), makeEntry(2, new Date(2025, 1, 20))];
     const lines = [
       makeVatLine(1, 1, "4457", "TVA20", 0, 1000_00),
       makeVatLine(2, 1, "4456", "TVA20", 200_00, 0),
@@ -158,10 +155,7 @@ describe("VatService", () => {
     const q1 = { startDate: new Date(2025, 0, 1), endDate: new Date(2025, 2, 31) };
     const q2 = { startDate: new Date(2025, 3, 1), endDate: new Date(2025, 5, 30) };
 
-    const entries = [
-      makeEntry(1, new Date(2025, 1, 15)),
-      makeEntry(2, new Date(2025, 4, 15)),
-    ];
+    const entries = [makeEntry(1, new Date(2025, 1, 15)), makeEntry(2, new Date(2025, 4, 15))];
     const lines = [
       makeVatLine(1, 1, "4457", "TVA20", 0, 1000_00),
       makeVatLine(2, 2, "4457", "TVA20", 0, 2000_00),

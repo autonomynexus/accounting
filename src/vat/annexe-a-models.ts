@@ -180,8 +180,7 @@ export function toASnapshot(a: ADeclaration): ADeclarationSnapshot {
       taxeDue: a.electricityProduction.taxeDue.amount,
       details: {
         productionMwh: a.electricityProduction.details.productionMwh,
-        referencePriceEur:
-          a.electricityProduction.details.referencePriceEur.amount,
+        referencePriceEur: a.electricityProduction.details.referencePriceEur.amount,
         actualPriceEur: a.electricityProduction.details.actualPriceEur.amount,
         marginRate: a.electricityProduction.details.marginRate,
       },

@@ -9,7 +9,12 @@
 
 import type { Monetary } from "monetary";
 import { EUR, monetary } from "monetary";
-import type { AcciseType, TicSectionType, TicExemptionCode, TicDeclarationSnapshot } from "./annexe-types.js";
+import type {
+  AcciseType,
+  TicSectionType,
+  TicExemptionCode,
+  TicDeclarationSnapshot,
+} from "./annexe-types.js";
 
 // ============================================================================
 // Types
@@ -77,7 +82,7 @@ export type TicMeter = {
  */
 export function createEmptyMeter(
   sectionType: TicSectionType,
-  reference: string
+  reference: string,
 ): Omit<TicMeter, "id"> {
   const zeroEur = monetary({ amount: 0, currency: EUR });
   return {
@@ -257,9 +262,7 @@ function createEmptySection<
 /**
  * Convert snapshot back to TicDeclaration
  */
-export function fromTicSnapshot(
-  snapshot: TicDeclarationSnapshot
-): TicDeclaration {
+export function fromTicSnapshot(snapshot: TicDeclarationSnapshot): TicDeclaration {
   const parseMeters = (sectionType: TicSectionType): TicMeter[] => {
     return snapshot.meters
       .filter((m) => m.sectionType === sectionType)
@@ -285,14 +288,10 @@ export function fromTicSnapshot(
   };
 
   const calculateSectionTotals = (
-    meters: readonly TicMeter[]
+    meters: readonly TicMeter[],
   ): Pick<
     TicSectionBase,
-    | "totalQuantity"
-    | "totalTaxDue"
-    | "totalDeductible"
-    | "totalCarryover"
-    | "netDue"
+    "totalQuantity" | "totalTaxDue" | "totalDeductible" | "totalCarryover" | "netDue"
   > => {
     let totalQuantity = 0;
     let totalTaxDue = 0;
@@ -404,11 +403,8 @@ export function calculateTicNetBalance(tic: TicDeclaration): {
   }
 
   return {
-    netBalanceDue:
-      totalDue >= 0 ? monetary({ amount: totalDue, currency: EUR }) : zeroEur(),
+    netBalanceDue: totalDue >= 0 ? monetary({ amount: totalDue, currency: EUR }) : zeroEur(),
     netCreditRefund:
-      totalDue < 0
-        ? monetary({ amount: Math.abs(totalDue), currency: EUR })
-        : zeroEur(),
+      totalDue < 0 ? monetary({ amount: Math.abs(totalDue), currency: EUR }) : zeroEur(),
   };
 }

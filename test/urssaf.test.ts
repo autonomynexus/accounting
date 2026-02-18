@@ -15,9 +15,9 @@ function expectM(actual: Monetary<number>, expectedCents: number) {
 }
 
 const standardRates = new Map<string, ScaledAmount<number>>([
-  ["BNC:base", sa(220, 3)],       // 22.0%
+  ["BNC:base", sa(220, 3)], // 22.0%
   ["BNC:acre_year1", sa(110, 3)], // 11.0%
-  ["BNC:cfp", sa(2, 3)],          // 0.2%
+  ["BNC:cfp", sa(2, 3)], // 0.2%
   ["BNC:versement_liberatoire", sa(22, 3)], // 2.2%
 ]);
 
@@ -53,9 +53,7 @@ describe("UrssafService", () => {
   it("computes declaration for micro regime with base rates", async () => {
     const dataLayer = makeDataLayer(10000_00, 3000_00);
     const ratesLayer = makeBespokeUrssafRatesLayer(standardRates);
-    const layer = UrssafServiceLayer.pipe(
-      Layer.provide(Layer.merge(dataLayer, ratesLayer)),
-    );
+    const layer = UrssafServiceLayer.pipe(Layer.provide(Layer.merge(dataLayer, ratesLayer)));
 
     const result = await Effect.runPromise(
       Effect.gen(function* () {
@@ -72,8 +70,8 @@ describe("UrssafService", () => {
     );
 
     expectM(result.declarationBase, 10000_00);
-    expectM(result.contributions.baseContribution, 2200_00);   // 22%
-    expectM(result.contributions.cfpContribution, 20_00);      // 0.2%
+    expectM(result.contributions.baseContribution, 2200_00); // 22%
+    expectM(result.contributions.cfpContribution, 20_00); // 0.2%
     expect(result.contributions.versementLiberatoire).toBeNull();
     expectM(result.contributions.totalContribution, 2220_00);
   });
@@ -81,9 +79,7 @@ describe("UrssafService", () => {
   it("computes declaration with ACRE rates", async () => {
     const dataLayer = makeDataLayer(10000_00, 3000_00);
     const ratesLayer = makeBespokeUrssafRatesLayer(standardRates);
-    const layer = UrssafServiceLayer.pipe(
-      Layer.provide(Layer.merge(dataLayer, ratesLayer)),
-    );
+    const layer = UrssafServiceLayer.pipe(Layer.provide(Layer.merge(dataLayer, ratesLayer)));
 
     const result = await Effect.runPromise(
       Effect.gen(function* () {
@@ -99,15 +95,13 @@ describe("UrssafService", () => {
       }).pipe(Effect.provide(layer)),
     );
 
-    expectM(result.contributions.baseContribution, 1100_00);   // 11%
+    expectM(result.contributions.baseContribution, 1100_00); // 11%
   });
 
   it("includes versement liberatoire when enabled", async () => {
     const dataLayer = makeDataLayer(10000_00, 3000_00);
     const ratesLayer = makeBespokeUrssafRatesLayer(standardRates);
-    const layer = UrssafServiceLayer.pipe(
-      Layer.provide(Layer.merge(dataLayer, ratesLayer)),
-    );
+    const layer = UrssafServiceLayer.pipe(Layer.provide(Layer.merge(dataLayer, ratesLayer)));
 
     const result = await Effect.runPromise(
       Effect.gen(function* () {
@@ -125,15 +119,13 @@ describe("UrssafService", () => {
 
     expect(result.contributions.versementLiberatoire).not.toBeNull();
     expectM(result.contributions.versementLiberatoire!, 220_00); // 2.2%
-    expectM(result.contributions.totalContribution, 2440_00);    // 2200 + 20 + 220
+    expectM(result.contributions.totalContribution, 2440_00); // 2200 + 20 + 220
   });
 
   it("gets revenue breakdown", async () => {
     const dataLayer = makeDataLayer(10000_00, 3000_00);
     const ratesLayer = makeBespokeUrssafRatesLayer(standardRates);
-    const layer = UrssafServiceLayer.pipe(
-      Layer.provide(Layer.merge(dataLayer, ratesLayer)),
-    );
+    const layer = UrssafServiceLayer.pipe(Layer.provide(Layer.merge(dataLayer, ratesLayer)));
 
     const result = await Effect.runPromise(
       Effect.gen(function* () {

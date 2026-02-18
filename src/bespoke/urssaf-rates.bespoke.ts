@@ -6,9 +6,7 @@ import { UrssafRatesPort, RateNotFoundError } from "../ports";
 /**
  * Keys should be formatted as `${ActivityType}:${RateType}`, e.g. "BNC:base"
  */
-export function makeBespokeUrssafRatesLayer(
-  rates: Map<string, ScaledAmount<number>>,
-) {
+export function makeBespokeUrssafRatesLayer(rates: Map<string, ScaledAmount<number>>) {
   return Layer.succeed(
     UrssafRatesPort,
     UrssafRatesPort.of({

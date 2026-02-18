@@ -3,16 +3,16 @@ export type {
   BalanceSheetSection,
   BalanceSheetFormat,
   BalanceSheet,
-} from "./balance-sheet-models.js"
+} from "./balance-sheet-models.js";
 
 export type {
   IncomeStatementFormat,
   IncomeStatementLine,
   IncomeStatementSection,
   IncomeStatement,
-} from "./income-statement-models.js"
+} from "./income-statement-models.js";
 
 export type {
   FinancialStatements,
   FinancialStatementsHTMLFormat,
-} from "./financial-statements-models.js"
+} from "./financial-statements-models.js";

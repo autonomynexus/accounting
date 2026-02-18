@@ -55,6 +55,7 @@ export type AccountingDataPortInterface = {
 // Port Tag
 // ============================================================================
 
-export class AccountingDataPort extends Effect.Tag(
-  "@accounting/AccountingDataPort",
-)<AccountingDataPort, AccountingDataPortInterface>() {}
+export class AccountingDataPort extends Effect.Tag("@accounting/AccountingDataPort")<
+  AccountingDataPort,
+  AccountingDataPortInterface
+>() {}

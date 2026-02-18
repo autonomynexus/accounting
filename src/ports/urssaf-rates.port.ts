@@ -38,6 +38,7 @@ export type UrssafRatesPortInterface = {
 // Port Tag
 // ============================================================================
 
-export class UrssafRatesPort extends Effect.Tag(
-  "@accounting/UrssafRatesPort",
-)<UrssafRatesPort, UrssafRatesPortInterface>() {}
+export class UrssafRatesPort extends Effect.Tag("@accounting/UrssafRatesPort")<
+  UrssafRatesPort,
+  UrssafRatesPortInterface
+>() {}

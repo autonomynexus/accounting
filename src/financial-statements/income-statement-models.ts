@@ -1,5 +1,3 @@
-
-
 import type { MonetaryAmount } from "../models.js";
 
 // Income Statement format according to French accounting standards

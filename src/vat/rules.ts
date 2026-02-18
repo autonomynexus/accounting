@@ -3,17 +3,26 @@
  */
 
 const VAT_EXEMPT_PCG_CODES = [
-  4457, 4456, 120, 645, 6351, 635, 671,
-  627, 661, 764, 101, 164, 681, 781, 616,
+  4457, 4456, 120, 645, 6351, 635, 671, 627, 661, 764, 101, 164, 681, 781, 616,
 ];
 
 const VAT_EXEMPT_CATEGORY_NAMES = [
-  "TVA collectée", "TVA déductible", "Impôt sur le revenu",
-  "Cotisations sociales", "Contribution Foncière des Entreprises",
-  "Taxes diverses", "Pénalités fiscales", "Services bancaires",
-  "Intérêts d'emprunts", "Produits financiers", "Apports en capital",
-  "Emprunts", "Remboursements d'emprunts", "Amortissements",
-  "Reprises sur amortissements", "Assurances",
+  "TVA collectée",
+  "TVA déductible",
+  "Impôt sur le revenu",
+  "Cotisations sociales",
+  "Contribution Foncière des Entreprises",
+  "Taxes diverses",
+  "Pénalités fiscales",
+  "Services bancaires",
+  "Intérêts d'emprunts",
+  "Produits financiers",
+  "Apports en capital",
+  "Emprunts",
+  "Remboursements d'emprunts",
+  "Amortissements",
+  "Reprises sur amortissements",
+  "Assurances",
 ];
 
 export function getAutomaticVatRate(category: {

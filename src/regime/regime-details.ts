@@ -1,9 +1,5 @@
 import { EUR, type Monetary, monetary } from "monetary";
-import type {
-  ActivityGroupCode,
-  RegimeCode,
-  TaxSystem,
-} from "../models.js";
+import type { ActivityGroupCode, RegimeCode, TaxSystem } from "../models.js";
 
 export type ThresholdConfig = {
   min?: Monetary<number>;
@@ -125,10 +121,16 @@ const FORMS = {
 const ACCOUNTING_REQUIREMENTS = {
   MICRO: [
     { name: "Sales ledger", description: "Record of all sales and income" },
-    { name: "Purchase ledger", description: "Record of all purchases (for goods resale activities)" },
+    {
+      name: "Purchase ledger",
+      description: "Record of all purchases (for goods resale activities)",
+    },
   ],
   DECLARATION_CONTROLEE: [
-    { name: "Complete accounting", description: "Full accounting records including income and expenses" },
+    {
+      name: "Complete accounting",
+      description: "Full accounting records including income and expenses",
+    },
     { name: "Supporting documents", description: "All invoices and receipts must be kept" },
   ],
   REEL_SIMPLIFIE: [
@@ -139,9 +141,15 @@ const ACCOUNTING_REQUIREMENTS = {
   ],
   REEL_NORMAL: [
     { name: "Full accounting", description: "Complete accounting with supporting documents" },
-    { name: "Chronological recording", description: "Chronological recording of all patrimony changes" },
+    {
+      name: "Chronological recording",
+      description: "Chronological recording of all patrimony changes",
+    },
     { name: "Annual inventory", description: "Complete inventory at least once every 12 months" },
-    { name: "Annual accounts", description: "Full balance sheet, income statement, and appendices" },
+    {
+      name: "Annual accounts",
+      description: "Full balance sheet, income statement, and appendices",
+    },
     { name: "Accounting books", description: "Journal and general ledger" },
   ],
 } as const;
@@ -186,7 +194,10 @@ export const REGIME_CONFIG: Record<RegimeCode, RegimeConfig> = {
     isAutoEntrepreneur: false,
     taxSystem: { allowed: ["IR", "IS"], default: "IS" },
     thresholds: {
-      BIC_SERVICES: { min: MICRO_THRESHOLDS.BIC_SERVICES, max: REEL_SIMPLIFIE_THRESHOLDS.BIC_SERVICES },
+      BIC_SERVICES: {
+        min: MICRO_THRESHOLDS.BIC_SERVICES,
+        max: REEL_SIMPLIFIE_THRESHOLDS.BIC_SERVICES,
+      },
       BIC_GOODS: { min: MICRO_THRESHOLDS.BIC_GOODS, max: REEL_SIMPLIFIE_THRESHOLDS.BIC_GOODS },
     },
     declarations: {

@@ -43,8 +43,7 @@ export const ThresholdMonitoringServiceLayer = Layer.effect(
   Effect.gen(function* () {
     const dataPort = yield* AccountingDataPort;
 
-    const zeroMonetary = (): Monetary<number> =>
-      monetary({ amount: 0, currency: EUR });
+    const zeroMonetary = (): Monetary<number> => monetary({ amount: 0, currency: EUR });
 
     const getYearlyRevenue = (userId: UserId, year: number) =>
       Effect.gen(function* () {
@@ -53,11 +52,7 @@ export const ThresholdMonitoringServiceLayer = Layer.effect(
           endDate: endOfYear(new Date(year, 0, 1)),
         };
 
-        const balances = yield* dataPort.getAccountBalancesByClass(
-          userId,
-          period,
-          7,
-        );
+        const balances = yield* dataPort.getAccountBalancesByClass(userId, period, 7);
 
         let total = zeroMonetary();
         for (const b of balances) {
@@ -74,116 +69,110 @@ export const ThresholdMonitoringServiceLayer = Layer.effect(
         return total;
       });
 
-    const getThresholdStatus: ThresholdMonitoringServiceInterface["getThresholdStatus"] =
-      (userId, activityType, year, activityStartDate) =>
-        Effect.gen(function* () {
-          const ytdRevenue = yield* getYearlyRevenue(userId, year);
-          const previousYearRevenue = yield* getYearlyRevenue(
-            userId,
-            year - 1,
-          );
+    const getThresholdStatus: ThresholdMonitoringServiceInterface["getThresholdStatus"] = (
+      userId,
+      activityType,
+      year,
+      activityStartDate,
+    ) =>
+      Effect.gen(function* () {
+        const ytdRevenue = yield* getYearlyRevenue(userId, year);
+        const previousYearRevenue = yield* getYearlyRevenue(userId, year - 1);
 
-          const microThreshold = getProratedThreshold(
-            getMicroThreshold(activityType),
-            activityStartDate,
-            year,
-          );
-          const vatThreshold = getProratedThreshold(
-            getVatThreshold(activityType),
-            activityStartDate,
-            year,
-          );
-          const previousMicroThreshold = getProratedThreshold(
-            getMicroThreshold(activityType),
-            activityStartDate,
-            year - 1,
-          );
+        const microThreshold = getProratedThreshold(
+          getMicroThreshold(activityType),
+          activityStartDate,
+          year,
+        );
+        const vatThreshold = getProratedThreshold(
+          getVatThreshold(activityType),
+          activityStartDate,
+          year,
+        );
+        const previousMicroThreshold = getProratedThreshold(
+          getMicroThreshold(activityType),
+          activityStartDate,
+          year - 1,
+        );
 
-          const microPercentage =
-            microThreshold.amount > 0
-              ? Math.round(
-                  (ytdRevenue.amount / microThreshold.amount) * 100,
-                )
-              : 0;
-          const vatPercentage =
-            vatThreshold.amount > 0
-              ? Math.round((ytdRevenue.amount / vatThreshold.amount) * 100)
-              : 0;
+        const microPercentage =
+          microThreshold.amount > 0
+            ? Math.round((ytdRevenue.amount / microThreshold.amount) * 100)
+            : 0;
+        const vatPercentage =
+          vatThreshold.amount > 0 ? Math.round((ytdRevenue.amount / vatThreshold.amount) * 100) : 0;
 
-          const currentYearExceeded =
-            ytdRevenue.amount > microThreshold.amount;
-          const previousYearExceeded =
-            previousYearRevenue.amount > previousMicroThreshold.amount;
-          const regimeAtRisk = currentYearExceeded && previousYearExceeded;
+        const currentYearExceeded = ytdRevenue.amount > microThreshold.amount;
+        const previousYearExceeded = previousYearRevenue.amount > previousMicroThreshold.amount;
+        const regimeAtRisk = currentYearExceeded && previousYearExceeded;
 
-          const warnings: ThresholdWarning[] = [];
+        const warnings: ThresholdWarning[] = [];
 
-          if (microPercentage >= 100) {
-            warnings.push({
-              type: "exceeded_micro",
-              activityType,
-              threshold: microThreshold,
-              current: ytdRevenue,
-              percentageUsed: microPercentage,
-              message: "Revenue exceeds micro-entreprise threshold",
-            });
-          } else if (microPercentage >= WARNING_THRESHOLD_PERCENT) {
-            warnings.push({
-              type: "approaching_micro",
-              activityType,
-              threshold: microThreshold,
-              current: ytdRevenue,
-              percentageUsed: microPercentage,
-              message: `Approaching micro-entreprise threshold (${microPercentage}%)`,
-            });
-          }
-
-          if (vatPercentage >= 100) {
-            warnings.push({
-              type: "exceeded_vat",
-              activityType,
-              threshold: vatThreshold,
-              current: ytdRevenue,
-              percentageUsed: vatPercentage,
-              message: "Revenue exceeds VAT franchise threshold",
-            });
-          } else if (vatPercentage >= WARNING_THRESHOLD_PERCENT) {
-            warnings.push({
-              type: "approaching_vat",
-              activityType,
-              threshold: vatThreshold,
-              current: ytdRevenue,
-              percentageUsed: vatPercentage,
-              message: `Approaching VAT franchise threshold (${vatPercentage}%)`,
-            });
-          }
-
-          if (regimeAtRisk) {
-            warnings.push({
-              type: "regime_transition_risk",
-              activityType,
-              threshold: microThreshold,
-              current: ytdRevenue,
-              percentageUsed: microPercentage,
-              message:
-                "Threshold exceeded 2 consecutive years - regime transition required",
-            });
-          }
-
-          return {
-            year,
+        if (microPercentage >= 100) {
+          warnings.push({
+            type: "exceeded_micro",
             activityType,
-            ytdRevenue,
-            microThreshold,
-            vatThreshold,
-            microPercentage,
-            vatPercentage,
-            warnings,
-            previousYearExceeded,
-            currentYearExceeded,
-            regimeAtRisk,
-          };
-        });
+            threshold: microThreshold,
+            current: ytdRevenue,
+            percentageUsed: microPercentage,
+            message: "Revenue exceeds micro-entreprise threshold",
+          });
+        } else if (microPercentage >= WARNING_THRESHOLD_PERCENT) {
+          warnings.push({
+            type: "approaching_micro",
+            activityType,
+            threshold: microThreshold,
+            current: ytdRevenue,
+            percentageUsed: microPercentage,
+            message: `Approaching micro-entreprise threshold (${microPercentage}%)`,
+          });
+        }
+
+        if (vatPercentage >= 100) {
+          warnings.push({
+            type: "exceeded_vat",
+            activityType,
+            threshold: vatThreshold,
+            current: ytdRevenue,
+            percentageUsed: vatPercentage,
+            message: "Revenue exceeds VAT franchise threshold",
+          });
+        } else if (vatPercentage >= WARNING_THRESHOLD_PERCENT) {
+          warnings.push({
+            type: "approaching_vat",
+            activityType,
+            threshold: vatThreshold,
+            current: ytdRevenue,
+            percentageUsed: vatPercentage,
+            message: `Approaching VAT franchise threshold (${vatPercentage}%)`,
+          });
+        }
+
+        if (regimeAtRisk) {
+          warnings.push({
+            type: "regime_transition_risk",
+            activityType,
+            threshold: microThreshold,
+            current: ytdRevenue,
+            percentageUsed: microPercentage,
+            message: "Threshold exceeded 2 consecutive years - regime transition required",
+          });
+        }
+
+        return {
+          year,
+          activityType,
+          ytdRevenue,
+          microThreshold,
+          vatThreshold,
+          microPercentage,
+          vatPercentage,
+          warnings,
+          previousYearExceeded,
+          currentYearExceeded,
+          regimeAtRisk,
+        };
+      });
 
     return ThresholdMonitoringService.of({
       getThresholdStatus,

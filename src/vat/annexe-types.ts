@@ -22,9 +22,9 @@ export const TAXE_ASSIMILEE_TYPES = [
   "REDEVANCE_SANITAIRE_PHYTOSANITAIRE",
   "EAUX_MINERALES_NATURELLES",
   "PRODUITS_PHYTOPHARMACEUTIQUES",
-] as const
+] as const;
 
-export type TaxeAssimileeType = (typeof TAXE_ASSIMILEE_TYPES)[number]
+export type TaxeAssimileeType = (typeof TAXE_ASSIMILEE_TYPES)[number];
 
 // 3310-TIC: Accise (excise tax) types
 export const ACCISE_TYPES = [
@@ -32,19 +32,14 @@ export const ACCISE_TYPES = [
   "TICGN", // Taxe intérieure consommation gaz naturel
   "TICC", // Taxe intérieure consommation charbon
   "TICPE", // Taxe intérieure consommation produits énergétiques
-] as const
+] as const;
 
-export type AcciseType = (typeof ACCISE_TYPES)[number]
+export type AcciseType = (typeof ACCISE_TYPES)[number];
 
 // TIC section types (energy categories)
-export const TIC_SECTION_TYPES = [
-  "ELECTRICITY",
-  "GAS",
-  "COAL",
-  "OTHER",
-] as const
+export const TIC_SECTION_TYPES = ["ELECTRICITY", "GAS", "COAL", "OTHER"] as const;
 
-export type TicSectionType = (typeof TIC_SECTION_TYPES)[number]
+export type TicSectionType = (typeof TIC_SECTION_TYPES)[number];
 
 // TIC exemption codes (E08-E22 per French tax code)
 export const TIC_EXEMPTION_CODES = [
@@ -63,77 +58,77 @@ export const TIC_EXEMPTION_CODES = [
   "E20",
   "E21",
   "E22",
-] as const
+] as const;
 
-export type TicExemptionCode = (typeof TIC_EXEMPTION_CODES)[number]
+export type TicExemptionCode = (typeof TIC_EXEMPTION_CODES)[number];
 
 // Snapshot types for JSON storage
 export type ADeclarationSnapshot = {
-  readonly version: string
-  readonly generatedAt: string
-  readonly ligne29Total: number
+  readonly version: string;
+  readonly generatedAt: string;
+  readonly ligne29Total: number;
   readonly taxes: readonly {
-    readonly taxType: string
-    readonly enabled: boolean
-    readonly baseImposable: number
-    readonly taxeDue: number
-    readonly details: Record<string, unknown>
-  }[]
-}
+    readonly taxType: string;
+    readonly enabled: boolean;
+    readonly baseImposable: number;
+    readonly taxeDue: number;
+    readonly details: Record<string, unknown>;
+  }[];
+};
 
 export type TerDeclarationSnapshot = {
-  readonly version: string
-  readonly generatedAt: string
-  readonly generalDeductionPercentage: number
-  readonly mentionExpresse: boolean
-  readonly comments: readonly string[]
+  readonly version: string;
+  readonly generatedAt: string;
+  readonly generalDeductionPercentage: number;
+  readonly mentionExpresse: boolean;
+  readonly comments: readonly string[];
   readonly sectors: readonly {
-    readonly sectorId: number
-    readonly sectorNumber: number
-    readonly tvaBrute: number
-    readonly tvaAReverser: number
-    readonly totalBrute: number
-    readonly immoExclusive: number
-    readonly immoNonExclusive: number
-    readonly immoTotal: number
-    readonly absExclusive: number
-    readonly absNonExclusive: number
-    readonly absTotal: number
-    readonly complementTva: number
-    readonly totalDeductible: number
-    readonly tvaNette: number
-    readonly creditTva: number
-  }[]
+    readonly sectorId: number;
+    readonly sectorNumber: number;
+    readonly tvaBrute: number;
+    readonly tvaAReverser: number;
+    readonly totalBrute: number;
+    readonly immoExclusive: number;
+    readonly immoNonExclusive: number;
+    readonly immoTotal: number;
+    readonly absExclusive: number;
+    readonly absNonExclusive: number;
+    readonly absTotal: number;
+    readonly complementTva: number;
+    readonly totalDeductible: number;
+    readonly tvaNette: number;
+    readonly creditTva: number;
+  }[];
   readonly totals: {
-    readonly tvaBrute: number
-    readonly totalDeductible: number
-    readonly tvaNette: number
-    readonly creditTva: number
-  }
-}
+    readonly tvaBrute: number;
+    readonly totalDeductible: number;
+    readonly tvaNette: number;
+    readonly creditTva: number;
+  };
+};
 
 export type TicDeclarationSnapshot = {
-  readonly version: string
-  readonly generatedAt: string
-  readonly electricityEnabled: boolean
-  readonly gasEnabled: boolean
-  readonly coalEnabled: boolean
-  readonly otherEnabled: boolean
-  readonly netBalanceDue: number
-  readonly netCreditRefund: number
+  readonly version: string;
+  readonly generatedAt: string;
+  readonly electricityEnabled: boolean;
+  readonly gasEnabled: boolean;
+  readonly coalEnabled: boolean;
+  readonly otherEnabled: boolean;
+  readonly netBalanceDue: number;
+  readonly netCreditRefund: number;
   readonly meters: readonly {
-    readonly id: number
-    readonly sectionType: string
-    readonly reference: string
-    readonly siret: string | null
-    readonly codeApe: string | null
-    readonly motifTarifReduit: string | null
-    readonly closingDate: string | null
-    readonly quantity: number
-    readonly rate: number
-    readonly deductiblePortion: number
-    readonly carryover: number
-    readonly netDue: number
-    readonly details: Record<string, unknown>
-  }[]
-}
+    readonly id: number;
+    readonly sectionType: string;
+    readonly reference: string;
+    readonly siret: string | null;
+    readonly codeApe: string | null;
+    readonly motifTarifReduit: string | null;
+    readonly closingDate: string | null;
+    readonly quantity: number;
+    readonly rate: number;
+    readonly deductiblePortion: number;
+    readonly carryover: number;
+    readonly netDue: number;
+    readonly details: Record<string, unknown>;
+  }[];
+};

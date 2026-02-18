@@ -35,17 +35,11 @@ export class InvalidVatCodeError extends Schema.TaggedError<InvalidVatCodeError>
 export type VatServiceInterface = {
   readonly computeDeclaration: (
     input: ComputeVatDeclarationInput,
-  ) => Effect.Effect<
-    VatDeclarationResult,
-    AccountingDataError | InvalidVatCodeError
-  >;
+  ) => Effect.Effect<VatDeclarationResult, AccountingDataError | InvalidVatCodeError>;
 
   readonly computeDeclarationsBatch: (
     inputs: readonly ComputeVatDeclarationInput[],
-  ) => Effect.Effect<
-    readonly VatDeclarationResult[],
-    AccountingDataError | InvalidVatCodeError
-  >;
+  ) => Effect.Effect<readonly VatDeclarationResult[], AccountingDataError | InvalidVatCodeError>;
 };
 
 // ============================================================================
@@ -61,8 +55,7 @@ export class VatService extends Effect.Tag("@accounting/VatService")<
 // Helpers
 // ============================================================================
 
-const zeroMonetary = (): Monetary<number> =>
-  monetary({ amount: 0, currency: EUR });
+const zeroMonetary = (): Monetary<number> => monetary({ amount: 0, currency: EUR });
 
 const zeroTotals = (): VatTotals => ({
   totalCollected: zeroMonetary(),
@@ -82,10 +75,7 @@ const computeVatFromLines = (
     }
 
     const periodEntries = allEntries.filter(
-      (e) =>
-        e.date >= period.startDate &&
-        e.date <= period.endDate &&
-        e.statusId === "VALIDATED",
+      (e) => e.date >= period.startDate && e.date <= period.endDate && e.statusId === "VALIDATED",
     );
 
     if (periodEntries.length === 0) {
@@ -96,8 +86,7 @@ const computeVatFromLines = (
     const vatLines = allLines.filter(
       (line) =>
         periodEntryIds.has(line.journalEntryId) &&
-        (line.accountCode === VAT_COLLECTED_ACCOUNT ||
-          line.accountCode === VAT_DEDUCTIBLE_ACCOUNT),
+        (line.accountCode === VAT_COLLECTED_ACCOUNT || line.accountCode === VAT_DEDUCTIBLE_ACCOUNT),
     );
 
     const byRateMap = new Map<
@@ -162,9 +151,7 @@ export const VatServiceLayer = Layer.effect(
   Effect.gen(function* () {
     const dataPort = yield* AccountingDataPort;
 
-    const computeDeclaration: VatServiceInterface["computeDeclaration"] = (
-      input,
-    ) =>
+    const computeDeclaration: VatServiceInterface["computeDeclaration"] = (input) =>
       Effect.gen(function* () {
         const { userId, period, regime } = input;
 
@@ -178,9 +165,7 @@ export const VatServiceLayer = Layer.effect(
           return { period, regime, byRate: [], totals: zeroTotals(), isCredit: false };
         }
 
-        const entryIds = entries
-          .filter((e) => e.statusId === "VALIDATED")
-          .map((e) => e.id);
+        const entryIds = entries.filter((e) => e.statusId === "VALIDATED").map((e) => e.id);
 
         if (entryIds.length === 0) {
           return { period, regime, byRate: [], totals: zeroTotals(), isCredit: false };
@@ -191,49 +176,48 @@ export const VatServiceLayer = Layer.effect(
         return yield* computeVatFromLines(period, regime, allLines, entries);
       });
 
-    const computeDeclarationsBatch: VatServiceInterface["computeDeclarationsBatch"] =
-      (inputs) =>
-        Effect.gen(function* () {
-          if (inputs.length === 0) return [];
+    const computeDeclarationsBatch: VatServiceInterface["computeDeclarationsBatch"] = (inputs) =>
+      Effect.gen(function* () {
+        if (inputs.length === 0) return [];
 
-          const first = inputs[0];
-          if (!first) return [];
-          const userId = first.userId;
+        const first = inputs[0];
+        if (!first) return [];
+        const userId = first.userId;
 
-          let minDate = first.period.startDate;
-          let maxDate = first.period.endDate;
-          for (const input of inputs) {
-            if (input.period.startDate < minDate) minDate = input.period.startDate;
-            if (input.period.endDate > maxDate) maxDate = input.period.endDate;
-          }
+        let minDate = first.period.startDate;
+        let maxDate = first.period.endDate;
+        for (const input of inputs) {
+          if (input.period.startDate < minDate) minDate = input.period.startDate;
+          if (input.period.endDate > maxDate) maxDate = input.period.endDate;
+        }
 
-          const allEntries = yield* dataPort.findJournalEntriesByPeriod(userId, {
-            startDate: minDate,
-            endDate: maxDate,
-          });
-
-          const validatedEntryIds = allEntries
-            .filter((e) => e.statusId === "VALIDATED")
-            .map((e) => e.id);
-
-          const allLines =
-            validatedEntryIds.length > 0
-              ? yield* dataPort.findJournalLinesByEntryIds(userId, validatedEntryIds)
-              : [];
-
-          const results: VatDeclarationResult[] = [];
-          for (const input of inputs) {
-            const result = yield* computeVatFromLines(
-              input.period,
-              input.regime,
-              allLines,
-              allEntries,
-            );
-            results.push(result);
-          }
-
-          return results;
+        const allEntries = yield* dataPort.findJournalEntriesByPeriod(userId, {
+          startDate: minDate,
+          endDate: maxDate,
         });
+
+        const validatedEntryIds = allEntries
+          .filter((e) => e.statusId === "VALIDATED")
+          .map((e) => e.id);
+
+        const allLines =
+          validatedEntryIds.length > 0
+            ? yield* dataPort.findJournalLinesByEntryIds(userId, validatedEntryIds)
+            : [];
+
+        const results: VatDeclarationResult[] = [];
+        for (const input of inputs) {
+          const result = yield* computeVatFromLines(
+            input.period,
+            input.regime,
+            allLines,
+            allEntries,
+          );
+          results.push(result);
+        }
+
+        return results;
+      });
 
     return VatService.of({
       computeDeclaration,

@@ -73,9 +73,7 @@ export function calculateItemsTotals(items: TaxableItem[]): ItemTotals {
   return items.reduce(
     (acc, item) => {
       const itemHT = item.amount;
-      const itemVAT = item.taxRate
-        ? calculateVATfromHT(itemHT, item.taxRate)
-        : multiply(itemHT, 0);
+      const itemVAT = item.taxRate ? calculateVATfromHT(itemHT, item.taxRate) : multiply(itemHT, 0);
       const itemTTC = add(itemHT, itemVAT);
       return {
         totalHT: add(acc.totalHT, itemHT),

@@ -75,7 +75,8 @@ export function getProratedThreshold(
   if (activityStartDate > yearEnd) return { ...threshold, amount: 0 };
 
   const daysInYear = (yearEnd.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24) + 1;
-  const daysOfActivity = (yearEnd.getTime() - activityStartDate.getTime()) / (1000 * 60 * 60 * 24) + 1;
+  const daysOfActivity =
+    (yearEnd.getTime() - activityStartDate.getTime()) / (1000 * 60 * 60 * 24) + 1;
 
   return {
     ...threshold,

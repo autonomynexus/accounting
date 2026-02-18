@@ -1,13 +1,5 @@
 import { Effect, Layer, Schema } from "effect";
-import {
-  add,
-  EUR,
-  type Monetary,
-  monetary,
-  multiply,
-  type ScaledAmount,
-  subtract,
-} from "monetary";
+import { add, EUR, type Monetary, monetary, multiply, type ScaledAmount, subtract } from "monetary";
 import type { AccountBalance } from "../models";
 import {
   AccountingDataPort,
@@ -77,13 +69,9 @@ export const UrssafServiceLayer = Layer.effect(
     const dataPort = yield* AccountingDataPort;
     const ratesPort = yield* UrssafRatesPort;
 
-    const zeroMonetary = (): Monetary<number> =>
-      monetary({ amount: 0, currency: EUR });
+    const zeroMonetary = (): Monetary<number> => monetary({ amount: 0, currency: EUR });
 
-    const sumBalances = (
-      balances: AccountBalance[],
-      isRevenueClass: boolean,
-    ): Monetary<number> => {
+    const sumBalances = (balances: AccountBalance[], isRevenueClass: boolean): Monetary<number> => {
       let total = zeroMonetary();
       for (const b of balances) {
         const balance = isRevenueClass
@@ -94,14 +82,10 @@ export const UrssafServiceLayer = Layer.effect(
       return total;
     };
 
-    const applyRate = (
-      base: Monetary<number>,
-      rate: ScaledAmount<number>,
-    ): Monetary<number> => multiply(base, rate);
+    const applyRate = (base: Monetary<number>, rate: ScaledAmount<number>): Monetary<number> =>
+      multiply(base, rate);
 
-    const getRevenueBreakdown: UrssafServiceInterface["getRevenueBreakdown"] = (
-      input,
-    ) =>
+    const getRevenueBreakdown: UrssafServiceInterface["getRevenueBreakdown"] = (input) =>
       Effect.gen(function* () {
         const { userId, period } = input;
 
@@ -116,18 +100,10 @@ export const UrssafServiceLayer = Layer.effect(
         };
       });
 
-    const computeDeclaration: UrssafServiceInterface["computeDeclaration"] = (
-      input,
-    ) =>
+    const computeDeclaration: UrssafServiceInterface["computeDeclaration"] = (input) =>
       Effect.gen(function* () {
-        const {
-          userId,
-          period,
-          activityType,
-          hasAcre,
-          hasVersementLiberatoire,
-          regimeCode,
-        } = input;
+        const { userId, period, activityType, hasAcre, hasVersementLiberatoire, regimeCode } =
+          input;
 
         const revenue = yield* getRevenueBreakdown({ userId, period });
 
@@ -143,19 +119,13 @@ export const UrssafServiceLayer = Layer.effect(
           ratesPort.getRate(activityType, contributionRateType, rateDate),
           ratesPort.getRate(activityType, "cfp", rateDate),
           hasVersementLiberatoire
-            ? ratesPort.getRate(
-                activityType,
-                "versement_liberatoire",
-                rateDate,
-              )
+            ? ratesPort.getRate(activityType, "versement_liberatoire", rateDate)
             : Effect.succeed(null as ScaledAmount<number> | null),
         ]);
 
         const baseContribution = applyRate(declarationBase, urssafRate);
         const cfpContribution = applyRate(declarationBase, cfpRate);
-        const versementLiberatoire = vlRate
-          ? applyRate(declarationBase, vlRate)
-          : null;
+        const versementLiberatoire = vlRate ? applyRate(declarationBase, vlRate) : null;
 
         let totalContribution = add(baseContribution, cfpContribution);
         if (versementLiberatoire) {
@@ -180,129 +150,113 @@ export const UrssafServiceLayer = Layer.effect(
         };
       });
 
-    const computeDeclarationsBatch: UrssafServiceInterface["computeDeclarationsBatch"] =
-      (inputs) =>
-        Effect.gen(function* () {
-          if (inputs.length === 0) return [];
+    const computeDeclarationsBatch: UrssafServiceInterface["computeDeclarationsBatch"] = (inputs) =>
+      Effect.gen(function* () {
+        if (inputs.length === 0) return [];
 
-          const first = inputs[0];
-          if (!first) return [];
+        const first = inputs[0];
+        if (!first) return [];
 
-          const earliestDate = inputs.reduce(
-            (min, i) => (i.period.startDate < min ? i.period.startDate : min),
-            first.period.startDate,
-          );
+        const earliestDate = inputs.reduce(
+          (min, i) => (i.period.startDate < min ? i.period.startDate : min),
+          first.period.startDate,
+        );
 
-          const needsBaseRate = inputs.some((i) => !i.hasAcre);
-          const needsAcreRate = inputs.some((i) => i.hasAcre);
+        const needsBaseRate = inputs.some((i) => !i.hasAcre);
+        const needsAcreRate = inputs.some((i) => i.hasAcre);
 
-          const ratePromises: Effect.Effect<
-            ScaledAmount<number>,
-            RateNotFoundError
-          >[] = [];
-          const rateKeys: string[] = [];
+        const ratePromises: Effect.Effect<ScaledAmount<number>, RateNotFoundError>[] = [];
+        const rateKeys: string[] = [];
 
-          if (needsBaseRate) {
-            ratePromises.push(
-              ratesPort.getRate(first.activityType, "base", earliestDate),
-            );
-            rateKeys.push("base");
-          }
-          if (needsAcreRate) {
-            ratePromises.push(
-              ratesPort.getRate(first.activityType, "acre_year1", earliestDate),
-            );
-            rateKeys.push("acre_year1");
-          }
+        if (needsBaseRate) {
+          ratePromises.push(ratesPort.getRate(first.activityType, "base", earliestDate));
+          rateKeys.push("base");
+        }
+        if (needsAcreRate) {
+          ratePromises.push(ratesPort.getRate(first.activityType, "acre_year1", earliestDate));
+          rateKeys.push("acre_year1");
+        }
+        ratePromises.push(ratesPort.getRate(first.activityType, "cfp", earliestDate));
+        rateKeys.push("cfp");
+
+        if (inputs.some((i) => i.hasVersementLiberatoire)) {
           ratePromises.push(
-            ratesPort.getRate(first.activityType, "cfp", earliestDate),
+            ratesPort.getRate(first.activityType, "versement_liberatoire", earliestDate),
           );
-          rateKeys.push("cfp");
+          rateKeys.push("versement_liberatoire");
+        }
 
-          if (inputs.some((i) => i.hasVersementLiberatoire)) {
-            ratePromises.push(
-              ratesPort.getRate(
-                first.activityType,
-                "versement_liberatoire",
-                earliestDate,
-              ),
-            );
-            rateKeys.push("versement_liberatoire");
+        const rateValues = yield* Effect.all(ratePromises);
+        const rateMap = new Map<string, ScaledAmount<number>>();
+        for (let i = 0; i < rateKeys.length; i++) {
+          const key = rateKeys[i];
+          const value = rateValues[i];
+          if (key && value) {
+            rateMap.set(key, value);
           }
+        }
 
-          const rateValues = yield* Effect.all(ratePromises);
-          const rateMap = new Map<string, ScaledAmount<number>>();
-          for (let i = 0; i < rateKeys.length; i++) {
-            const key = rateKeys[i];
-            const value = rateValues[i];
-            if (key && value) {
-              rateMap.set(key, value);
-            }
-          }
-
-          const revenueBreakdowns = yield* Effect.all(
-            inputs.map((input) =>
-              getRevenueBreakdown({
-                userId: input.userId,
-                period: input.period,
-              }),
-            ),
-            { concurrency: "unbounded" },
-          );
-
-          const results: UrssafDeclarationResult[] = inputs.map((input, i) => {
-            const revenue = revenueBreakdowns[i];
-            if (!revenue) {
-              throw new NoRevenueDataError({ period: input.period });
-            }
-
-            const declarationBase =
-              input.regimeCode === "micro"
-                ? revenue.revenueTotal
-                : subtract(revenue.revenueTotal, revenue.expenseTotal);
-
-            const contributionRateType = getAcreRateType(input.hasAcre);
-            const urssafRate = rateMap.get(contributionRateType);
-            const cfpRate = rateMap.get("cfp");
-            if (!(urssafRate && cfpRate)) {
-              throw new AccountingDataError({
-                operation: "getRate",
-                details: "Rate not found in batch cache",
-              });
-            }
-            const vlRate = input.hasVersementLiberatoire
-              ? (rateMap.get("versement_liberatoire") ?? null)
-              : null;
-
-            const baseContribution = applyRate(declarationBase, urssafRate);
-            const cfpContribution = applyRate(declarationBase, cfpRate);
-            const versementLiberatoire = vlRate
-              ? applyRate(declarationBase, vlRate)
-              : null;
-
-            let totalContribution = add(baseContribution, cfpContribution);
-            if (versementLiberatoire) {
-              totalContribution = add(totalContribution, versementLiberatoire);
-            }
-
-            return {
+        const revenueBreakdowns = yield* Effect.all(
+          inputs.map((input) =>
+            getRevenueBreakdown({
+              userId: input.userId,
               period: input.period,
-              activityType: input.activityType,
-              hasAcre: input.hasAcre,
-              regimeCode: input.regimeCode,
-              revenue,
-              contributions: {
-                baseContribution,
-                cfpContribution,
-                versementLiberatoire,
-                totalContribution,
-              },
-              declarationBase,
-            };
-          });
+            }),
+          ),
+          { concurrency: "unbounded" },
+        );
 
-          return results;
+        const results: UrssafDeclarationResult[] = inputs.map((input, i) => {
+          const revenue = revenueBreakdowns[i];
+          if (!revenue) {
+            throw new NoRevenueDataError({ period: input.period });
+          }
+
+          const declarationBase =
+            input.regimeCode === "micro"
+              ? revenue.revenueTotal
+              : subtract(revenue.revenueTotal, revenue.expenseTotal);
+
+          const contributionRateType = getAcreRateType(input.hasAcre);
+          const urssafRate = rateMap.get(contributionRateType);
+          const cfpRate = rateMap.get("cfp");
+          if (!(urssafRate && cfpRate)) {
+            throw new AccountingDataError({
+              operation: "getRate",
+              details: "Rate not found in batch cache",
+            });
+          }
+          const vlRate = input.hasVersementLiberatoire
+            ? (rateMap.get("versement_liberatoire") ?? null)
+            : null;
+
+          const baseContribution = applyRate(declarationBase, urssafRate);
+          const cfpContribution = applyRate(declarationBase, cfpRate);
+          const versementLiberatoire = vlRate ? applyRate(declarationBase, vlRate) : null;
+
+          let totalContribution = add(baseContribution, cfpContribution);
+          if (versementLiberatoire) {
+            totalContribution = add(totalContribution, versementLiberatoire);
+          }
+
+          return {
+            period: input.period,
+            activityType: input.activityType,
+            hasAcre: input.hasAcre,
+            regimeCode: input.regimeCode,
+            revenue,
+            contributions: {
+              baseContribution,
+              cfpContribution,
+              versementLiberatoire,
+              totalContribution,
+            },
+            declarationBase,
+          };
         });
+
+        return results;
+      });
 
     return UrssafService.of({
       computeDeclaration,

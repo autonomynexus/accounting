@@ -129,33 +129,29 @@ import type { TerDeclarationSnapshot } from "./annexe-types.js";
  * Convert TerDeclaration to storable snapshot
  */
 export function toTerSnapshot(ter: TerDeclaration): TerDeclarationSnapshot {
-  const sectorsData: TerDeclarationSnapshot["sectors"] = ter.sectors.map(
-    (sector, index) => {
-      const brute = ter.vatBrute.find((b) => b.sectorId === sector.id);
-      const deductible = ter.vatDeductible.find(
-        (d) => d.sectorId === sector.id
-      );
-      const result = ter.results.find((r) => r.sectorId === sector.id);
+  const sectorsData: TerDeclarationSnapshot["sectors"] = ter.sectors.map((sector, index) => {
+    const brute = ter.vatBrute.find((b) => b.sectorId === sector.id);
+    const deductible = ter.vatDeductible.find((d) => d.sectorId === sector.id);
+    const result = ter.results.find((r) => r.sectorId === sector.id);
 
-      return {
-        sectorId: sector.id,
-        sectorNumber: index + 1,
-        tvaBrute: brute?.tvaBrute.amount ?? 0,
-        tvaAReverser: brute?.tvaAReverser.amount ?? 0,
-        totalBrute: brute?.total.amount ?? 0,
-        immoExclusive: deductible?.immoExclusive.amount ?? 0,
-        immoNonExclusive: deductible?.immoNonExclusive.amount ?? 0,
-        immoTotal: deductible?.immoTotal.amount ?? 0,
-        absExclusive: deductible?.absExclusive.amount ?? 0,
-        absNonExclusive: deductible?.absNonExclusive.amount ?? 0,
-        absTotal: deductible?.absTotal.amount ?? 0,
-        complementTva: result?.complementTvaDeductible.amount ?? 0,
-        totalDeductible: result?.totalTvaDeductible.amount ?? 0,
-        tvaNette: result?.tvaNette.amount ?? 0,
-        creditTva: result?.creditTva.amount ?? 0,
-      };
-    }
-  );
+    return {
+      sectorId: sector.id,
+      sectorNumber: index + 1,
+      tvaBrute: brute?.tvaBrute.amount ?? 0,
+      tvaAReverser: brute?.tvaAReverser.amount ?? 0,
+      totalBrute: brute?.total.amount ?? 0,
+      immoExclusive: deductible?.immoExclusive.amount ?? 0,
+      immoNonExclusive: deductible?.immoNonExclusive.amount ?? 0,
+      immoTotal: deductible?.immoTotal.amount ?? 0,
+      absExclusive: deductible?.absExclusive.amount ?? 0,
+      absNonExclusive: deductible?.absNonExclusive.amount ?? 0,
+      absTotal: deductible?.absTotal.amount ?? 0,
+      complementTva: result?.complementTvaDeductible.amount ?? 0,
+      totalDeductible: result?.totalTvaDeductible.amount ?? 0,
+      tvaNette: result?.tvaNette.amount ?? 0,
+      creditTva: result?.creditTva.amount ?? 0,
+    };
+  });
 
   return {
     version: "1.0",
@@ -183,7 +179,7 @@ const zeroEur = () => monetary({ amount: 0, currency: EUR });
  */
 export function fromTerSnapshot(
   snapshot: TerDeclarationSnapshot,
-  sectorConfigs: readonly VatSectorConfig[]
+  sectorConfigs: readonly VatSectorConfig[],
 ): TerDeclaration {
   const sectors: TerSector[] = snapshot.sectors.map((s) => {
     const config = sectorConfigs.find((c) => c.id === s.sectorId);

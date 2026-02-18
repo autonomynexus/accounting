@@ -11,20 +11,11 @@ export type UserId = string;
 export type MonetaryAmount = Monetary<number>;
 
 // Account Types (PCG)
-export type AccountTypeCode =
-  | "ASSET"
-  | "LIABILITY"
-  | "EQUITY"
-  | "REVENUE"
-  | "EXPENSE";
+export type AccountTypeCode = "ASSET" | "LIABILITY" | "EQUITY" | "REVENUE" | "EXPENSE";
 export type AccountClass = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 // Journal Entry Status
-export type JournalEntryStatusCode =
-  | "DRAFT"
-  | "VALIDATED"
-  | "CLOSED"
-  | "CANCELLED";
+export type JournalEntryStatusCode = "DRAFT" | "VALIDATED" | "CLOSED" | "CANCELLED";
 
 // Journal Entry Source
 export type JournalEntrySourceCode =
@@ -123,9 +114,7 @@ export type RegimeCode =
   | "REEL_NORMAL";
 
 // Helper to get account type from class
-export function getAccountTypeFromClass(
-  accountClass: AccountClass,
-): AccountTypeCode {
+export function getAccountTypeFromClass(accountClass: AccountClass): AccountTypeCode {
   switch (accountClass) {
     case 1:
       return "EQUITY";
