@@ -46,6 +46,15 @@ export * from "./ports/index.js";
 // Bespoke (in-memory) data layers
 export * from "./bespoke/index.js";
 
+// FEC (Fichier des Écritures Comptables)
+export * from "./fec/index.js";
+
+// Liasse Fiscale (2065 + 2050-2059)
+export * from "./liasse-fiscale/index.js";
+
+// IS Solde (2572-SD)
+export * from "./is-solde/index.js";
+
 // Services
 export {
   ThresholdMonitoringService,
