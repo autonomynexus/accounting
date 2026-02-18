@@ -37,6 +37,9 @@ export * from "./vat/tic-models.js";
 // Financial Statements
 export * from "./financial-statements/index.js";
 
+// Journal Entry Validation
+export * from "./journal/index.js";
+
 // Ports (interfaces for data access)
 export * from "./ports/index.js";
 
