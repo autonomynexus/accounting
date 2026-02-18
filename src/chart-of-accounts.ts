@@ -69,6 +69,22 @@ export const PCG_ACCOUNTS: PcgAccountDefinition[] = [
   },
   { code: "431", name: "Sécurité sociale", class: 4, typeId: "LIABILITY", isDebitNormal: false },
   { code: "4456", name: "TVA déductible", class: 4, typeId: "ASSET", isDebitNormal: true },
+  {
+    code: "44562",
+    name: "TVA déductible sur immobilisations",
+    class: 4,
+    typeId: "ASSET",
+    isDebitNormal: true,
+    parentCode: "4456",
+  },
+  {
+    code: "44566",
+    name: "TVA déductible sur autres biens et services",
+    class: 4,
+    typeId: "ASSET",
+    isDebitNormal: true,
+    parentCode: "4456",
+  },
   { code: "4457", name: "TVA collectée", class: 4, typeId: "LIABILITY", isDebitNormal: false },
   {
     code: "447",
@@ -148,6 +164,14 @@ export const PCG_ACCOUNTS: PcgAccountDefinition[] = [
     isDebitNormal: true,
   },
   {
+    code: "6278",
+    name: "Autres frais et commissions sur prestations de services",
+    class: 6,
+    typeId: "EXPENSE",
+    isDebitNormal: true,
+    parentCode: "627",
+  },
+  {
     code: "641",
     name: "Rémunérations du personnel",
     class: 6,
@@ -161,7 +185,9 @@ export const PCG_ACCOUNTS: PcgAccountDefinition[] = [
     typeId: "EXPENSE",
     isDebitNormal: true,
   },
+  { code: "656", name: "Pertes de change", class: 6, typeId: "EXPENSE", isDebitNormal: true },
   { code: "661", name: "Charges d'intérêts", class: 6, typeId: "EXPENSE", isDebitNormal: true },
+  { code: "665", name: "Escomptes accordés", class: 6, typeId: "EXPENSE", isDebitNormal: true },
   {
     code: "681",
     name: "Dotations aux amortissements",
@@ -212,6 +238,7 @@ export const PCG_ACCOUNTS: PcgAccountDefinition[] = [
     typeId: "REVENUE",
     isDebitNormal: false,
   },
+  { code: "756", name: "Gains de change", class: 7, typeId: "REVENUE", isDebitNormal: false },
   {
     code: "758",
     name: "Produits divers de gestion courante",
