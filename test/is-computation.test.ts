@@ -16,6 +16,8 @@ describe("IS Computation", () => {
       exerciceDateDebut: new Date(2024, 0, 1),
       exerciceDateFin: new Date(2024, 11, 31),
       dureeExerciceMois: 12,
+      capitalEntierementLibere: true,
+      detenuParPersonnesPhysiques75: true,
     });
 
     // 42500 × 15% = 6375

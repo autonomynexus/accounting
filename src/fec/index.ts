@@ -4,5 +4,7 @@ export {
   generateFecFilename,
   exportFecToString,
   validateFecRecords,
+  validateSiren,
+  validateCompteNum,
   createFecSnapshot,
 } from "./generation.js";

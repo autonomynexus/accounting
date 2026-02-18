@@ -41,6 +41,18 @@ export type ComputeISInput = {
   readonly exerciceDateDebut: Date;
   readonly exerciceDateFin: Date;
   readonly dureeExerciceMois: number;
+  /**
+   * Capital entièrement libéré — required for PME reduced rate eligibility.
+   * Per CGI Art. 219-I-b, the 15% reduced rate requires capital entièrement libéré.
+   * Defaults to false if not provided.
+   */
+  readonly capitalEntierementLibere?: boolean;
+  /**
+   * Capital détenu à 75% ou plus par des personnes physiques.
+   * Per CGI Art. 219-I-b, required for PME reduced rate eligibility.
+   * Defaults to false if not provided.
+   */
+  readonly detenuParPersonnesPhysiques75?: boolean;
 };
 
 /**
@@ -76,7 +88,16 @@ export function computeIS(input: ComputeISInput): Form2572 {
   }
 
   const caLimit = monetary({ amount: IS_CA_PLAFOND_TAUX_REDUIT * 100, currency: EUR });
-  const eligibleTauxReduit = !greaterThan(chiffreAffairesHT, caLimit);
+  /**
+   * PME reduced rate eligibility per CGI Art. 219-I-b requires ALL three conditions:
+   * 1. CA HT < €10M
+   * 2. Capital entièrement libéré
+   * 3. Capital détenu ≥75% par des personnes physiques
+   */
+  const eligibleTauxReduit =
+    !greaterThan(chiffreAffairesHT, caLimit) &&
+    (input.capitalEntierementLibere ?? false) &&
+    (input.detenuParPersonnesPhysiques75 ?? false);
 
   const plafondReduit = monetary({
     amount: Math.round((IS_TAUX_REDUIT_PLAFOND * 100 * dureeExerciceMois) / 12),
@@ -100,8 +121,14 @@ export function computeIS(input: ComputeISInput): Form2572 {
   const isBrut = add(isAuTauxReduit, isAuTauxNormal);
 
   let contributionSociale = ZERO;
+  /**
+   * Contribution sociale sur les bénéfices (CSB) per CGI Art. 235 ter ZC:
+   * - Only applies if CA > €7,630,000
+   * - Rate: 3.3% on IS exceeding €763,000 abatement
+   */
+  const seuilCAContribSociale = monetary({ amount: 7_630_000 * 100, currency: EUR });
   const seuilCS = monetary({ amount: IS_CONTRIBUTION_SOCIALE_SEUIL * 100, currency: EUR });
-  if (greaterThan(isBrut, seuilCS)) {
+  if (greaterThan(chiffreAffairesHT, seuilCAContribSociale) && greaterThan(isBrut, seuilCS)) {
     const abattement = monetary({ amount: IS_CONTRIBUTION_SOCIALE_ABATTEMENT * 100, currency: EUR });
     const base = subtract(isBrut, abattement);
     if (greaterThan(base, ZERO)) {
@@ -138,6 +165,13 @@ export function computeIS(input: ComputeISInput): Form2572 {
 // Acomptes Calculation
 // ============================================================================
 
+/**
+ * Compute IS quarterly advance payments (acomptes).
+ *
+ * NOTE: Dates are hardcoded for standard calendar fiscal years (Jan-Dec).
+ * TODO: For non-calendar fiscal years, acomptes follow an offset schedule
+ * based on the fiscal year end date. This is not yet implemented.
+ */
 export function computeAcomptes(
   isPrecedent: MonetaryAmount,
   annee: number,

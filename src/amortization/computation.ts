@@ -30,6 +30,16 @@ function min2(a: MonetaryAmount, b: MonetaryAmount): MonetaryAmount {
 // Prorata temporis
 // ============================================================================
 
+/**
+ * Compute prorata temporis for amortization.
+ *
+ * **Linear method**: Uses the **days/360 convention** (année commerciale),
+ * which is the most common convention in French fiscal practice and accepted
+ * by the administration fiscale. Each month is counted as 30 days.
+ *
+ * **Declining balance method**: Uses months/12 convention per CGI,
+ * counting the month of acquisition as a full month.
+ */
 export function computeProrata(
   dateDebut: Date,
   dateFin: Date,
@@ -108,10 +118,14 @@ export function computeAmortissementDegressif(
   const lignes: AmortizationLine[] = [];
   let cumul = ZERO;
   let vnc = immo.valeurAcquisition;
-  let anneesRestantes = immo.dureeAmortissement;
+  // Track remaining duration explicitly to avoid floating-point drift
+  // from repeated fractional subtraction. We accumulate total prorata used
+  // and compute remaining as: dureeAmortissement - totalProrataUsed
+  let totalProrataUsed = 0;
 
   for (const exercice of exerciceDates) {
     if (exercice.dateFin < immo.dateMiseEnService) continue;
+    const anneesRestantes = Math.round((immo.dureeAmortissement - totalProrataUsed) * 1000) / 1000;
     if (!greaterThan(vnc, immo.valeurResiduelle) || anneesRestantes <= 0) break;
 
     const dateDebutAmort =
@@ -127,7 +141,7 @@ export function computeAmortissementDegressif(
 
     cumul = add(cumul, dotation);
     vnc = subtract(immo.valeurAcquisition, cumul);
-    anneesRestantes -= prorata;
+    totalProrataUsed += prorata;
 
     lignes.push({
       exercice: exercice.dateFin.getFullYear().toString(),

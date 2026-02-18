@@ -188,11 +188,12 @@ export function computeForm2051(tb: TrialBalance): Form2051 {
   );
 
   // Dettes fiscales et sociales
+  // Note: prefix "44" already includes account 447, no need to add it separately
   const dettesFiscalesSociales = passifLine(
     "Dettes fiscales et sociales",
     add(
       add(getCreditBalance(tb, "42"), getCreditBalance(tb, "43")),
-      add(getCreditBalance(tb, "44"), getCreditBalance(tb, "447")),
+      getCreditBalance(tb, "44"),
     ),
   );
 
@@ -249,7 +250,8 @@ export function computeForm2052(tb: TrialBalance): Form2052 {
   const variationStockMatieres = add(getAccountPrefixBalance(tb, "6031"), getAccountPrefixBalance(tb, "6032"));
   const autresAchatsChargesExternes = add(add(add(exp("604"), exp("605")), add(exp("606"), exp("608"))), add(exp("61"), exp("62")));
   const impotsTaxes = exp("63");
-  const salaires = exp("641");
+  // Salaires includes 641 (personnel) + 644 (rémunération de l'exploitant) per CERFA 2052
+  const salaires = add(exp("641"), exp("644"));
   const chargesSociales = add(exp("645"), add(exp("646"), exp("647")));
   const dotationsAmortissementsProvisions = exp("68");
   const autresCharges = add(exp("65"), exp("648"));

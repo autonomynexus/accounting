@@ -128,14 +128,43 @@ const MANDATORY_STRING_FIELDS: (keyof FecRecord)[] = [
   "Idevise",
 ];
 
+/**
+ * Validate SIREN format: must be exactly 9 digits.
+ */
+export function validateSiren(siren: string): boolean {
+  return /^\d{9}$/.test(siren);
+}
+
+/**
+ * Validate CompteNum against PCG conventions:
+ * Must start with a digit 1-7 and be at least 3 characters.
+ */
+export function validateCompteNum(compteNum: string): boolean {
+  return /^[1-7]\d{2,}$/.test(compteNum);
+}
+
 /** Validate FEC records for compliance */
-export function validateFecRecords(records: readonly FecRecord[]): FecValidationResult {
+export function validateFecRecords(
+  records: readonly FecRecord[],
+  options?: { readonly siren?: string },
+): FecValidationResult {
   const errors: FecValidationError[] = [];
   let totalDebit = ZERO();
   let totalCredit = ZERO();
 
+  // SIREN format validation (9 digits)
+  if (options?.siren && !validateSiren(options.siren)) {
+    errors.push({
+      type: "FORMAT_ERROR",
+      message: `SIREN '${options.siren}' is invalid: must be exactly 9 digits`,
+    });
+  }
+
   // Group records by EcritureNum for balance check
   const entriesByNum = new Map<string, FecRecord[]>();
+
+  // Chronological ordering check
+  let previousDate = "";
 
   for (let i = 0; i < records.length; i++) {
     const record = records[i]!;
@@ -165,6 +194,27 @@ export function validateFecRecords(records: readonly FecRecord[]): FecValidation
         });
       }
     }
+
+    // CompteNum validation against PCG conventions
+    if (record.CompteNum && !validateCompteNum(record.CompteNum)) {
+      errors.push({
+        type: "FORMAT_ERROR",
+        message: `Record ${i + 1}: CompteNum '${record.CompteNum}' does not conform to PCG (must start with 1-7, min 3 digits)`,
+        recordIndex: i,
+        field: "CompteNum",
+      });
+    }
+
+    // Chronological ordering check (EcritureDate must be non-decreasing)
+    if (record.EcritureDate < previousDate) {
+      errors.push({
+        type: "FORMAT_ERROR",
+        message: `Record ${i + 1}: EcritureDate '${record.EcritureDate}' breaks chronological order (previous: '${previousDate}')`,
+        recordIndex: i,
+        field: "EcritureDate",
+      });
+    }
+    previousDate = record.EcritureDate;
 
     totalDebit = add(totalDebit, record.Debit);
     totalCredit = add(totalCredit, record.Credit);

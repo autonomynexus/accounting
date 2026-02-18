@@ -81,7 +81,7 @@ export function compute2035A(input: Compute2035AInput): Form2035A {
     gainsExceptionnels: z(input.gainsExceptionnels),
     totalRecettes,
     achats,
-    fournituress: fournitures,
+    fournitures: fournitures,
     loyersEtChargesLocatives: loyers,
     travauxEntretien: travaux,
     primesAssurances: assurances,
@@ -137,8 +137,10 @@ export function compute2035(
   const form2035A = compute2035A(input);
   const form2035B = compute2035B(input.immobilisations);
 
-  // Résultat fiscal = Bénéfice - dotations aux amortissements
-  const resultatFiscal = subtract(form2035A.beneficeOuDeficit, form2035B.totalAmortissementAnnee);
+  // Résultat fiscal = Bénéfice from 2035-A (recettes - dépenses).
+  // Amortissements are reported separately in 2035-B but NOT subtracted again here,
+  // as they are already included in dépenses for cash-basis BNC accounting.
+  const resultatFiscal = form2035A.beneficeOuDeficit;
 
   return {
     _tag: "Form2035",

@@ -40,7 +40,7 @@ export type Form2035A = {
 
   // Dépenses
   readonly achats: MonetaryAmount;
-  readonly fournituress: MonetaryAmount;
+  readonly fournitures: MonetaryAmount;
   readonly loyersEtChargesLocatives: MonetaryAmount;
   readonly travauxEntretien: MonetaryAmount;
   readonly primesAssurances: MonetaryAmount;

@@ -52,7 +52,7 @@ export const PCG_ACCOUNTS: PcgAccountDefinition[] = [
   },
   {
     code: "281",
-    name: "Amortissements des immobilisations incorporelles",
+    name: "Amortissements des immobilisations corporelles",
     class: 2,
     typeId: "ASSET",
     isDebitNormal: false,
