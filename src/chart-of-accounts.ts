@@ -86,6 +86,30 @@ export function getExpenseAccountCodes(): string[] {
   return PCG_ACCOUNTS.filter((acc) => acc.class === 6).map((acc) => acc.code);
 }
 
-export const VAT_DEDUCTIBLE_ACCOUNT = "4456";
-export const VAT_COLLECTED_ACCOUNT = "4457";
-export const BANK_ACCOUNT = "512";
+// VAT accounts
+export const VAT_DEDUCTIBLE_ACCOUNT = "4456" // Parent account (for querying all deductible)
+export const VAT_DEDUCTIBLE_IMMOS = "44562" // TVA déductible sur immobilisations (CA3 ligne 20)
+export const VAT_DEDUCTIBLE_ABS = "44566" // TVA déductible sur autres biens et services (CA3 ligne 19)
+export const VAT_COLLECTED_ACCOUNT = "4457"
+export const OTHER_TAXES_ACCOUNT = "447" // Autres impôts, taxes et versements assimilés (3310-A, 3310-TIC)
+
+// Common accounts
+export const BANK_ACCOUNT = "512"
+export const CLIENT_ACCOUNT = "411"
+export const BANK_COMMISSION_ACCOUNT = "6278"
+export const FOREX_LOSS_ACCOUNT = "656"
+export const FOREX_GAIN_ACCOUNT = "756"
+export const DISCOUNT_ACCOUNT = "665"
+export const PAYMENT_PROCESSOR_FEE_ACCOUNT = "6278"
+
+/**
+ * Get the appropriate VAT deductible account based on expense account class.
+ * Class 2 (immobilisations) → 44562, everything else → 44566
+ */
+export function getVatDeductibleAccount(expenseAccountCode: string): string {
+  const account = getAccountDefinition(expenseAccountCode)
+  if (account && account.class === 2) {
+    return VAT_DEDUCTIBLE_IMMOS // Immobilisations → 44562
+  }
+  return VAT_DEDUCTIBLE_ABS // All other expenses → 44566
+}

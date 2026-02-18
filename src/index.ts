@@ -28,6 +28,14 @@ export {
 } from "./vat/utils.js";
 export * from "./vat/calculations.js";
 export * from "./vat/rules.js";
+export * from "./vat/formatting.js";
+export * from "./vat/annexe-types.js";
+export * from "./vat/annexe-a-models.js";
+export * from "./vat/ter-models.js";
+export * from "./vat/tic-models.js";
+
+// Financial Statements
+export * from "./financial-statements/index.js";
 
 // Ports (interfaces for data access)
 export * from "./ports/index.js";
