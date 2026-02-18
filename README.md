@@ -1,18 +1,19 @@
 # @autonomynexus/accounting
 
-The canonical French freelancer and small company accounting engine. Handles VAT declarations, URSSAF contributions, threshold monitoring, financial statements, and Plan Comptable Général (PCG) — with zero infrastructure dependencies.
+The canonical French freelancer and small company accounting engine. Handles VAT declarations (CA3/CA12), URSSAF contributions, threshold monitoring, financial statements, and Plan Comptable Général (PCG) — with zero infrastructure dependencies.
 
 ## Why this exists
 
 French accounting for freelancers (EI, micro-entreprise) and small companies (EURL, SASU, SAS) involves a maze of tax regimes, URSSAF rates, VAT thresholds, and filing obligations. This package encodes all of that as pure TypeScript — no database, no framework, no runtime dependencies beyond [Effect](https://effect.website) and [monetary](https://github.com/autonomynexus/monetary-lib).
 
 **Use it to:**
-- Generate CA3 and CA12 VAT declarations from journal entry data
+- **Generate CA3 and CA12 VAT declarations** from journal entry data (monthly + annual simplified)
+- **Generate VAT annexes**: 3310-A (taxes assimilées), 3310-TER (secteurs distincts), 3310-TIC (accises énergétiques)
 - Compute URSSAF contributions with ACRE support
 - Monitor micro-entreprise revenue thresholds
-- Calculate VAT (HT↔TTC conversions, rate lookups)
+- Calculate VAT (HT↔TTC conversions, rate lookups, DOM-TOM support)
 - Build balance sheets and income statements
-- Access the full PCG chart of accounts for freelancers
+- Access the full PCG chart of accounts for freelancers and small companies
 
 ## Architecture
 
@@ -22,7 +23,8 @@ French accounting for freelancers (EI, micro-entreprise) and small companies (EU
 ┌─────────────────────────────────┐
 │   @autonomynexus/accounting     │
 │                                 │
-│  Services ──→ Ports (interfaces)│
+│  Generators ──→ JournalDataPort │
+│  Services  ──→ AccountingDataPort
 │  Models, Rules, Calculations    │
 │  PCG, Rates, Thresholds         │
 └─────────────┬───────────────────┘
@@ -57,128 +59,127 @@ import {
   REGIME_CONFIG,
   MICRO_THRESHOLDS,
   formatVatAmount,
-} from "@autonomynexus/accounting"
-import { EUR, monetary } from "monetary"
+} from "@autonomynexus/accounting";
+import { EUR, monetary } from "monetary";
 
 // VAT calculations
-const ht = calculateHTFromTTC(monetary({ amount: 12000, currency: EUR }), 20)
+const ht = calculateHTFromTTC(monetary({ amount: 12000, currency: EUR }), 20);
 // → { amount: 10000, currency: EUR } (100.00€ HT from 120.00€ TTC)
 
-const ttc = calculateTTCFromHT(monetary({ amount: 10000, currency: EUR }), 20)
-// → { amount: 12000, currency: EUR }
-
-// VAT rate info
-const info = getVatInfo("TVA_20")
-// → { code: "TVA_20", rate: 20, label: "TVA 20%", ... }
-
-// Micro-entreprise thresholds
-const threshold = MICRO_THRESHOLDS.BIC_GOODS // 188700€
-const vatThreshold = MICRO_THRESHOLDS.BIC_GOODS // for VAT franchise
-
-// Regime configuration
-const microConfig = REGIME_CONFIG.MICRO_ENTREPRISE
-// → { name, taxSystem, validActivityGroupCodes, thresholds, ... }
-
-// Chart of accounts
-const bankAccount = PCG_ACCOUNTS.find(a => a.code === "512")
+// Chart of accounts (PCG — Plan Comptable Général)
+const bankAccount = PCG_ACCOUNTS.find(a => a.code === "512");
 // → { code: "512", name: "Banques", class: 5, typeId: "ASSET", ... }
 
-// Format for French tax forms
-const amount = monetary({ amount: 123456, currency: EUR })
-formatVatAmount(amount) // → "1234,56"
+// Micro-entreprise thresholds
+const threshold = MICRO_THRESHOLDS.BIC_GOODS; // 188700€
 ```
 
-### Services with Effect
+### Generating a CA3 declaration (monthly VAT)
 
 ```ts
-import { Effect, Layer } from "effect"
+import { Effect, Layer } from "effect";
 import {
-  ThresholdMonitoringService,
-  ThresholdMonitoringServiceLayer,
-  UrssafService,
-  UrssafServiceLayer,
-  VatService,
-  VatServiceLayer,
-  BespokeAccountingData,
-  BespokeUrssafRates,
-} from "@autonomynexus/accounting"
+  Ca3GeneratorService,
+  Ca3GeneratorServiceLayer,
+  JournalDataPort,
+  BespokeJournalData,
+} from "@autonomynexus/accounting";
 
-// Use bespoke (in-memory) data for quick calculations
-const bespokeData = BespokeAccountingData.make({
-  accountBalances: [
-    { accountCode: "706", debitTotal: m(0), creditTotal: m(5000000), balance: m(-5000000) },
-  ],
-})
-const bespokeRates = BespokeUrssafRates.make({
-  rates: new Map([["social_contribution", scaledAmount(0.22)]]),
-})
+// Provide journal data (from DB, API, or in-memory)
+const journalData = BespokeJournalData.make({
+  entries: [/* your JournalEntryModel[] */],
+  lines: [/* your JournalLineModel[] */],
+});
 
-// Compose layers
-const live = Layer.mergeAll(
-  ThresholdMonitoringServiceLayer,
-  UrssafServiceLayer,
-  VatServiceLayer,
-  Layer.succeed(AccountingDataPort, bespokeData),
-  Layer.succeed(UrssafRatesPort, bespokeRates),
-)
+const layer = Ca3GeneratorServiceLayer.pipe(
+  Layer.provide(Layer.succeed(JournalDataPort, journalData)),
+);
 
-// Use services
 const program = Effect.gen(function* () {
-  const threshold = yield* ThresholdMonitoringService
-  const status = yield* threshold.getThresholdStatus(userId, "BIC_GOODS", 2025, startDate)
-  // → { microPercentage, vatPercentage, warnings, regimeAtRisk, ... }
-})
+  const ca3 = yield* Ca3GeneratorService;
+  return yield* ca3.generate({
+    userId: "user-1",
+    period: { startDate: new Date("2025-01-01"), endDate: new Date("2025-01-31") },
+    previousCredit: undefined, // carry from last month
+  });
+});
 
-Effect.runPromise(program.pipe(Effect.provide(live)))
+const declaration = await Effect.runPromise(program.pipe(Effect.provide(layer)));
+// → Ca3Declaration with all 32 official line numbers
+```
+
+### Generating a CA12 declaration (annual simplified VAT)
+
+```ts
+import {
+  Ca12GeneratorService,
+  Ca12GeneratorServiceLayer,
+  JournalDataPort,
+} from "@autonomynexus/accounting";
+
+const layer = Ca12GeneratorServiceLayer.pipe(
+  Layer.provide(Layer.succeed(JournalDataPort, yourJournalDataAdapter)),
+);
+
+const program = Effect.gen(function* () {
+  const ca12 = yield* Ca12GeneratorService;
+  return yield* ca12.generate({
+    userId: "user-1",
+    exercice: { startDate: new Date("2025-01-01"), endDate: new Date("2025-12-31") },
+    previousCredit: undefined,
+    acompteJuillet: undefined,
+    acompteDécembre: undefined,
+  });
+});
 ```
 
 ### Wiring to a real database
 
 ```ts
-import { AccountingDataPort } from "@autonomynexus/accounting"
-import { Effect, Layer } from "effect"
+import { JournalDataPort } from "@autonomynexus/accounting";
+import { Effect, Layer } from "effect";
 
-// Implement the port with your data layer
-const DrizzleAccountingData = Layer.effect(
-  AccountingDataPort,
+const DrizzleJournalData = Layer.effect(
+  JournalDataPort,
   Effect.gen(function* () {
-    const db = yield* Database
+    const db = yield* Database;
     return {
-      getAccountBalances: (userId, period, accountCodes) =>
+      findEntriesByPeriod: (userId, period) =>
+        Effect.tryPromise(() =>
+          db.query.journalEntry.findMany({ where: /* your query */ })
+        ),
+      findLinesByEntryIds: (userId, entryIds) =>
         Effect.tryPromise(() =>
           db.query.journalLine.findMany({ where: /* your query */ })
         ),
-      getAccountBalancesByClass: (userId, period, accountClass) =>
-        Effect.tryPromise(() =>
-          db.query.journalLine.findMany({ where: /* your query */ })
-        ),
-    }
+    };
   })
-)
+);
 ```
 
-## API Surface
+## Module Structure
 
 ### Models & Types
 
 | Module | Key exports |
 |--------|-------------|
 | `models` | `Period`, `AccountBalance`, `UserId`, `RegimeCode`, `TaxSystem`, `ActivityGroupCode`, `JournalEntryModel`, `JournalLineModel`, `CompleteJournalEntry` |
-| `chart-of-accounts` | `PCG_ACCOUNTS`, `BANK_ACCOUNT`, `VAT_COLLECTED_ACCOUNT`, `VAT_DEDUCTIBLE_ABS`, `VAT_DEDUCTIBLE_IMMOS`, `getAccountDefinition()`, `getRevenueAccountCodes()`, `getVatDeductibleAccount()` |
+| `chart-of-accounts` | `PCG_ACCOUNTS`, `BANK_ACCOUNT`, `VAT_COLLECTED_ACCOUNT`, `VAT_DEDUCTIBLE_ABS`, `VAT_DEDUCTIBLE_IMMOS`, `OTHER_TAXES_ACCOUNT`, `getAccountDefinition()`, `getRevenueAccountCodes()`, `getVatDeductibleAccount()` |
 | `regime/regime-details` | `REGIME_CONFIG`, `MICRO_THRESHOLDS`, `VAT_THRESHOLDS`, `REEL_SIMPLIFIE_THRESHOLDS` |
 
-### VAT
+### VAT Declarations & Calculations
 
 | Module | Key exports |
 |--------|-------------|
-| `vat/models` | `Ca3Declaration` (all 32 lines), `Ca12Declaration`, `Ca3DeclarationFull`, `Ca3DeclarationSnapshot`, `Ca12DeclarationSnapshot`, `VatDeclarationResult`, `VatRegime`, `GenerateCa3Input`, `GenerateCa12Input` |
+| `vat/declarations` | `Ca3GeneratorService`, `Ca3GeneratorServiceLayer`, `Ca12GeneratorService`, `Ca12GeneratorServiceLayer` |
+| `vat/models` | `Ca3Declaration` (all 32 lines), `Ca12Declaration`, `GenerateCa3Input`, `GenerateCa12Input`, `VatRegime` |
 | `vat/calculations` | `calculateHTFromTTC()`, `calculateTTCFromHT()`, `FRENCH_VAT_RATES` |
 | `vat/rules` | `getAutomaticVatRate()`, `isVatExemptCategory()`, `getTaxRateOptions()` |
-| `vat/utils` | `VatCode`, `getVatInfo()`, `hasVat()`, `isValidVatCode()` |
+| `vat/utils` | `VatCode`, `getVatInfo()`, `hasVat()`, `isValidVatCode()`, `isDomTomVatCode()` |
 | `vat/formatting` | `formatVatAmount()`, `isTvaLine()` |
-| `vat/annexe-types` | `TAXE_ASSIMILEE_TYPES`, `ACCISE_TYPES`, `TIC_EXEMPTION_CODES`, snapshot types |
+| `vat/annexe-types` | `TAXE_ASSIMILEE_TYPES`, `ACCISE_TYPES`, `TIC_EXEMPTION_CODES` |
 | `vat/annexe-a-models` | `ADeclaration`, `SimpleTaxLine` (3310-A taxes assimilées) |
-| `vat/ter-models` | `TerDeclaration`, `VatSector` (3310-TER secteurs distincts) |
+| `vat/ter-models` | `TerDeclaration`, `VatSector`, `VatSectorConfig` (3310-TER secteurs distincts) |
 | `vat/tic-models` | `TicDeclaration`, `TicMeter` (3310-TIC accises énergétiques) |
 
 ### URSSAF
@@ -198,16 +199,20 @@ const DrizzleAccountingData = Layer.effect(
 
 | Service | What it does |
 |---------|-------------|
-| `ThresholdMonitoringService` | Monitors micro-entreprise revenue vs thresholds, warns on approaching/exceeding |
-| `UrssafService` | Computes URSSAF declaration amounts with ACRE, CFP, versement libératoire |
-| `VatService` | Computes VAT declarations from journal entries |
+| `Ca3GeneratorService` | Generates CA3 monthly VAT declarations + TER/A/TIC annexes |
+| `Ca12GeneratorService` | Generates CA12 annual simplified VAT declarations |
+| `ThresholdMonitoringService` | Monitors micro-entreprise revenue vs thresholds |
+| `UrssafService` | Computes URSSAF declarations with ACRE, CFP, versement libératoire |
+| `VatService` | Computes VAT from account balances |
 
 ### Ports (interfaces you implement)
 
-| Port | Methods |
-|------|---------|
-| `AccountingDataPort` | `getAccountBalances()`, `getAccountBalancesByClass()` |
-| `UrssafRatesPort` | `getRate()`, `getAllRatesForActivity()` |
+| Port | Methods | Used by |
+|------|---------|---------|
+| `JournalDataPort` | `findEntriesByPeriod()`, `findLinesByEntryIds()` | CA3/CA12 generators |
+| `AccountingDataPort` | `getAccountBalances()`, `getAccountBalancesByClass()` | VatService, ThresholdMonitoringService |
+| `UrssafRatesPort` | `getRate()`, `getAllRatesForActivity()` | UrssafService |
+| `VatSectorPort` | `getActiveSectors()` | CA3 TER annexe generator |
 
 ### Bespoke (in-memory) implementations
 
@@ -215,6 +220,7 @@ For testing or standalone use without a database:
 
 | Export | Purpose |
 |--------|---------|
+| `BespokeJournalData` | In-memory `JournalDataPort` from arrays |
 | `BespokeAccountingData` | In-memory `AccountingDataPort` from plain objects |
 | `BespokeUrssafRates` | In-memory `UrssafRatesPort` from a Map |
 
@@ -226,9 +232,17 @@ For testing or standalone use without a database:
 - **No authentication.** `UserId` is an opaque string.
 - **No state management.** Pure computation — call it, get results.
 
+## Roadmap
+
+- [ ] Déclaration 2035 (BNC professions libérales — EI)
+- [ ] Liasse fiscale (balance sheet + income statement filing format)
+- [ ] CFE / CVAE declarations
+- [ ] Full PCG with all 400+ accounts (currently ~50 most-used)
+- [ ] Declaration validation rules (cross-field consistency checks)
+
 ## Legal references
 
-- **PCG** — Plan Comptable Général (French chart of accounts)
+- **PCG** — Plan Comptable Général (ANC regulation 2014-03)
 - **CGI Art. 287** — VAT declaration obligations
 - **CGI Art. 302 septies A** — Régime simplifié (CA12)
 - **CERFA 10963** — Form 3310-CA3-SD (monthly/quarterly VAT)
@@ -241,7 +255,7 @@ For testing or standalone use without a database:
 
 - TypeScript, [Effect](https://effect.website), [monetary](https://github.com/autonomynexus/monetary-lib)
 - Bun for runtime/testing
-- Biome for linting
+- oxfmt for formatting, oxlint for linting
 
 ## License
 
