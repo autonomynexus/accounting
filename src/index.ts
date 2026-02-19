@@ -1,6 +1,9 @@
 // Models & core types
 export * from "./models.js";
 
+// Company Structure & PME eligibility
+export * from "./models/company-structure.js";
+
 // Full PCG Chart of Accounts (comprehensive, all classes 1-8)
 export * from "./pcg/index.js";
 
