@@ -162,37 +162,82 @@ export function computeIS(input: ComputeISInput): Form2572 {
 }
 
 // ============================================================================
+// Acompte Date Computation
+// ============================================================================
+
+/**
+ * Compute IS acompte due dates for any fiscal year.
+ *
+ * Per CGI Art. 1668 and BOI-IS-DECLA-20-10-10 §40, each IS acompte is due
+ * on the 15th of the last month of each quarter counted from the fiscal year start.
+ *
+ * Offsets from the first day of the fiscal year:
+ *   - Acompte 1: 3rd month, day 15 (month + 2)
+ *   - Acompte 2: 6th month, day 15 (month + 5)
+ *   - Acompte 3: 9th month, day 15 (month + 8)
+ *   - Acompte 4: 12th month, day 15 (month + 11)
+ *
+ * For a standard Jan–Dec fiscal year, this yields Mar 15, Jun 15, Sep 15, Dec 15.
+ * For an Apr–Mar fiscal year: Jun 15, Sep 15, Dec 15, Mar 15.
+ *
+ * For a first/short exercise, only acomptes whose due date falls on or before
+ * the exercise end date are included (the 4th acompte for a 12-month year always
+ * falls on or before the last day of the 12th month).
+ *
+ * @param exerciceDateDebut - Start date of the fiscal year
+ * @param exerciceDateFin - End date of the fiscal year
+ * @returns Array of acompte due dates (may be fewer than 4 for short exercises)
+ */
+export function computeAcompteDates(exerciceDateDebut: Date, exerciceDateFin: Date): Date[] {
+  const monthOffsets = [2, 5, 8, 11]; // 3rd, 6th, 9th, 12th month from start
+
+  const dates: Date[] = [];
+  for (const offset of monthOffsets) {
+    const d = new Date(exerciceDateDebut.getFullYear(), exerciceDateDebut.getMonth() + offset, 15);
+    if (d <= exerciceDateFin) {
+      dates.push(d);
+    }
+  }
+
+  return dates;
+}
+
+// ============================================================================
 // Acomptes Calculation
 // ============================================================================
 
 /**
  * Compute IS quarterly advance payments (acomptes).
  *
- * NOTE: Dates are hardcoded for standard calendar fiscal years (Jan-Dec).
- * TODO: For non-calendar fiscal years, acomptes follow an offset schedule
- * based on the fiscal year end date. This is not yet implemented.
+ * Uses computeAcompteDates to determine due dates based on fiscal year dates.
+ * For non-calendar fiscal years, dates are correctly offset from the fiscal year start.
+ *
+ * @param isPrecedent - IS amount from the previous fiscal year (basis for 25% quarterly payments)
+ * @param exerciceDateDebut - Start date of the current fiscal year
+ * @param exerciceDateFin - End date of the current fiscal year
  */
 export function computeAcomptes(
   isPrecedent: MonetaryAmount,
-  annee: number,
+  exerciceDateDebut: Date,
+  exerciceDateFin: Date,
 ): readonly { readonly numero: 1 | 2 | 3 | 4; readonly dateEcheance: Date; readonly montant: MonetaryAmount }[] {
+  const dates = computeAcompteDates(exerciceDateDebut, exerciceDateFin);
+
   if (isZero(isPrecedent) || !greaterThan(isPrecedent, ZERO)) {
-    return [
-      { numero: 1, dateEcheance: new Date(annee, 2, 15), montant: ZERO },
-      { numero: 2, dateEcheance: new Date(annee, 5, 15), montant: ZERO },
-      { numero: 3, dateEcheance: new Date(annee, 8, 15), montant: ZERO },
-      { numero: 4, dateEcheance: new Date(annee, 11, 15), montant: ZERO },
-    ];
+    return dates.map((d, i) => ({
+      numero: (i + 1) as 1 | 2 | 3 | 4,
+      dateEcheance: d,
+      montant: ZERO,
+    }));
   }
 
   const quart = mul(isPrecedent, 0.25);
 
-  return [
-    { numero: 1, dateEcheance: new Date(annee, 2, 15), montant: quart },
-    { numero: 2, dateEcheance: new Date(annee, 5, 15), montant: quart },
-    { numero: 3, dateEcheance: new Date(annee, 8, 15), montant: quart },
-    { numero: 4, dateEcheance: new Date(annee, 11, 15), montant: quart },
-  ];
+  return dates.map((d, i) => ({
+    numero: (i + 1) as 1 | 2 | 3 | 4,
+    dateEcheance: d,
+    montant: quart,
+  }));
 }
 
 // ============================================================================

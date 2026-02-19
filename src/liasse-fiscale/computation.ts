@@ -20,6 +20,15 @@ import type {
   BilanActifLine,
   BilanPassifLine,
 } from "./models.js";
+import type {
+  Form2050CerfaData,
+  Form2051CerfaData,
+  Form2052CerfaData,
+  Form2053CerfaData,
+  Form2050LineValue,
+  Form2051LineValue,
+  Form2052LineValue,
+} from "./cerfa-lines.js";
 
 const ZERO = monetary({ amount: 0, currency: EUR });
 
@@ -393,5 +402,140 @@ export function computeForm2058A(
     },
     resultatFiscal,
     deficitReportable,
+  };
+}
+
+// ============================================================================
+// CERFA Line-Code–Based Conversions
+// ============================================================================
+
+/**
+ * Convert a BilanActifLine to a Form2050LineValue.
+ */
+function toActifLineValue(line: BilanActifLine): Form2050LineValue {
+  return {
+    brut: line.brut,
+    amortissementsProvisions: line.amortissementsProvisions,
+    net: line.net,
+    netN1: line.netN1,
+  };
+}
+
+/**
+ * Convert a BilanPassifLine to a Form2051LineValue.
+ */
+function toPassifLineValue(line: BilanPassifLine): Form2051LineValue {
+  return {
+    montant: line.montant,
+    montantN1: line.montantN1,
+  };
+}
+
+/**
+ * Convert Form2050 (descriptive keys) to CERFA line-code–keyed data.
+ *
+ * Maps the simplified model fields to official CERFA 2050 (10937) line codes.
+ * Lines not computed individually are omitted (Partial record).
+ */
+export function form2050ToCerfa(form: Form2050): Form2050CerfaData {
+  const z = actifLine("", ZERO, ZERO);
+  const zv = toActifLineValue(z);
+
+  return {
+    // Immobilisations incorporelles → lines AA-AF grouped into single line
+    // The simplified model doesn't split by sub-category; map to AE (Autres)
+    AE: toActifLineValue(form.immobilisationsIncorporelles),
+    // Immobilisations corporelles → AI (dominant subcategory for most SMEs)
+    AI: toActifLineValue(form.immobilisationsCorporelles),
+    // Immobilisations financières → AN (Autres participations)
+    AN: toActifLineValue(form.immobilisationsFinancieres),
+    // Total actif immobilisé
+    AS: toActifLineValue(form.totalActifImmobilise),
+    // Stocks → AT (matières premières) as primary mapping
+    AT: toActifLineValue(form.stocks),
+    // Créances clients
+    AZ: toActifLineValue(form.creancesClients),
+    // Autres créances
+    BA: toActifLineValue(form.autresCreances),
+    // Disponibilités
+    BD: toActifLineValue(form.disponibilites),
+    // Charges constatées d'avance
+    BE: toActifLineValue(form.chargesConstatees),
+    // Total actif circulant
+    BF: toActifLineValue(form.totalActifCirculant),
+    // Total général
+    BJ: toActifLineValue(form.totalActif),
+  };
+}
+
+/**
+ * Convert Form2051 (descriptive keys) to CERFA line-code–keyed data.
+ *
+ * Maps to official CERFA 2051 (10938) line codes.
+ */
+export function form2051ToCerfa(form: Form2051): Form2051CerfaData {
+  return {
+    DA: toPassifLineValue(form.capitalSocial),
+    DG: toPassifLineValue(form.reserves),
+    DH: toPassifLineValue(form.reportANouveau),
+    DI: toPassifLineValue(form.resultatExercice),
+    DL: toPassifLineValue(form.totalCapitauxPropres),
+    DR: { montant: form.provisions.montant, montantN1: form.provisions.montantN1 },
+    DU: toPassifLineValue(form.emprunts),
+    DX: toPassifLineValue(form.dettesFournisseurs),
+    DY: toPassifLineValue(form.dettesFiscalesSociales),
+    EA: toPassifLineValue(form.autresDettes),
+    EB: toPassifLineValue(form.produitsConstates),
+    EC: toPassifLineValue(form.totalDettes),
+    EE: toPassifLineValue(form.totalPassif),
+  };
+}
+
+/**
+ * Convert Form2052 (descriptive keys) to CERFA line-code–keyed data.
+ *
+ * Maps to official CERFA 2052 (10167) line codes.
+ */
+export function form2052ToCerfa(form: Form2052): Form2052CerfaData {
+  const mv = (m: MonetaryAmount): Form2052LineValue => ({ montant: m });
+
+  return {
+    FA: mv(form.achatsMarchandises),
+    FB: mv(form.variationStockMarchandises),
+    FC: mv(form.achatsMatieresPremieres),
+    FD: mv(form.variationStockMatieres),
+    FE: mv(form.autresAchatsChargesExternes),
+    FF: mv(form.impotsTaxes),
+    FG: mv(form.salaires),
+    FH: mv(form.chargesSociales),
+    FI: mv(form.dotationsAmortissementsProvisions),
+    FM: mv(form.autresCharges),
+    FQ: mv(form.chargesFinancieres),
+    FU: mv(form.chargesExceptionnelles),
+    FZ: mv(form.impotBenefices),
+    GA: mv(form.totalCharges),
+  };
+}
+
+/**
+ * Convert Form2053 (descriptive keys) to CERFA line-code–keyed data.
+ *
+ * Maps to official CERFA 2053 (10168) line codes.
+ */
+export function form2053ToCerfa(form: Form2053): Form2053CerfaData {
+  const mv = (m: MonetaryAmount): Form2052LineValue => ({ montant: m });
+
+  return {
+    HA: mv(form.ventesMarchandises),
+    HB: mv(form.productionVendueBiens),
+    HC: mv(form.productionVendueServices),
+    HE: mv(form.productionStockee),
+    HF: mv(form.productionImmobilisee),
+    HG: mv(form.subventionsExploitation),
+    HH: mv(form.reprisesProvisions),
+    HI: mv(form.autresProduits),
+    HL: mv(form.produitsFinanciers),
+    HM: mv(form.produitsExceptionnels),
+    HN: mv(form.totalProduits),
   };
 }
