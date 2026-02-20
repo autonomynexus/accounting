@@ -22,7 +22,7 @@ jobs:
       # Override local file: dep with GitHub ref for CI
       - run: |
           sed -i 's|"monetary": "file:../monetary"|"monetary": "github:autonomynexus/monetary-lib"|' package.json
-          bun install --no-save
+          bun install --force --no-save
 
       - run: bun run build
 
