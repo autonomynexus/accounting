@@ -1,5 +1,5 @@
 import { Effect, Schema } from "effect";
-import type { ScaledAmount } from "monetary";
+import type { ScaledAmount } from "@autonomynexus/monetary";
 import type { ActivityType, RateType } from "../urssaf/rates";
 
 // ============================================================================

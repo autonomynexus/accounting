@@ -1,4 +1,4 @@
-import type { Monetary } from "monetary";
+import type { Monetary } from "@autonomynexus/monetary";
 import type { Period, UserId } from "../models.js";
 import type { ActivityType } from "./rates.js";
 

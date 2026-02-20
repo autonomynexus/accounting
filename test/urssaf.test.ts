@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Effect, Layer } from "effect";
-import { EUR, monetary, equal } from "monetary";
-import type { ScaledAmount, Monetary } from "monetary";
+import { EUR, monetary, equal } from "@autonomynexus/monetary";
+import type { ScaledAmount, Monetary } from "@autonomynexus/monetary";
 import type { AccountBalance } from "../src/models";
 import { AccountingDataPort } from "../src/ports";
 import { makeBespokeUrssafRatesLayer } from "../src/bespoke";

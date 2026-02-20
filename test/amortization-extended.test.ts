@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EUR, monetary, compare } from "monetary";
+import { EUR, monetary, compare } from "@autonomynexus/monetary";
 import {
   computeAmortissementLineaire,
   computeAmortissementDegressif,

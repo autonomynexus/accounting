@@ -31,10 +31,10 @@
     "date-fns": "^4.0.0"
   },
   "peerDependencies": {
-    "monetary": ">=2.0.0"
+    "@autonomynexus/monetary": ">=0.1.0"
   },
   "devDependencies": {
-    "monetary": "file:../monetary",
+    "@autonomynexus/monetary": "file:../monetary",
     "oxfmt": "^0.31.0",
     "oxlint": "^1.46.0",
     "typescript": "^5.5.0"

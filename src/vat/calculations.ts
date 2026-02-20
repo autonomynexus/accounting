@@ -2,8 +2,8 @@
  * Canonical VAT calculation formulas for French business.
  * All calculations use the monetary library to maintain precision.
  */
-import type { Monetary, ScaledAmount } from "monetary";
-import { add, allocate, EUR, monetary, multiply, subtract } from "monetary";
+import type { Monetary, ScaledAmount } from "@autonomynexus/monetary";
+import { add, allocate, EUR, monetary, multiply, subtract } from "@autonomynexus/monetary";
 
 export function calculateHTfromTTC(
   ttc: Monetary<number>,

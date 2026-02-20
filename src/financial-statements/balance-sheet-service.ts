@@ -1,5 +1,5 @@
 import { Effect, Layer } from "effect";
-import { add, compare, EUR, type Monetary, monetary, subtract } from "monetary";
+import { add, compare, EUR, type Monetary, monetary, subtract } from "@autonomynexus/monetary";
 import { getPcgAccountsForInsert } from "../chart-of-accounts.js";
 import type { AccountBalance, Period, UserId } from "../models.js";
 import { AccountingDataPort, type AccountingDataError } from "../ports/accounting-data.port.js";

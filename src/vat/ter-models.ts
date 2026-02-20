@@ -8,7 +8,7 @@
  * @see docs/plans/vat-annexes-data-model.md
  */
 
-import type { Monetary } from "monetary";
+import type { Monetary } from "@autonomynexus/monetary";
 
 // ============================================================================
 // Sector Configuration (Company-level)
@@ -122,7 +122,7 @@ export type TerSectorData = {
 // Snapshot Conversion
 // ============================================================================
 
-import { EUR, monetary } from "monetary";
+import { EUR, monetary } from "@autonomynexus/monetary";
 import type { TerDeclarationSnapshot } from "./annexe-types.js";
 
 /**

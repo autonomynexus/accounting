@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EUR, monetary } from "monetary";
+import { EUR, monetary } from "@autonomynexus/monetary";
 import {
   computeForm2050,
   computeForm2051,

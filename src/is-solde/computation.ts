@@ -2,7 +2,7 @@
  * IS Computation — Pure calculation functions
  */
 
-import { add, EUR, monetary, subtract, greaterThan, isZero, multiply, minimum } from "monetary";
+import { add, EUR, monetary, subtract, greaterThan, isZero, multiply, minimum } from "@autonomynexus/monetary";
 import type { MonetaryAmount } from "../models.js";
 import type { Form2572 } from "./models.js";
 import {

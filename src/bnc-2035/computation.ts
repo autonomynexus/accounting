@@ -3,7 +3,7 @@
  * Cash-basis accounting for profession libérale
  */
 
-import { add, EUR, monetary, subtract } from "monetary";
+import { add, EUR, monetary, subtract } from "@autonomynexus/monetary";
 import type { MonetaryAmount } from "../models.js";
 import type { Form2035, Form2035A, Form2035B, Immo2035Line } from "./models.js";
 

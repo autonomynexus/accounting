@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EUR, monetary } from "monetary";
+import { EUR, monetary } from "@autonomynexus/monetary";
 import {
   CERFA_LINE_LABELS,
   type Form2050Line,

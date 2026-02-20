@@ -1,4 +1,4 @@
-import type { ScaledAmount } from "monetary";
+import type { ScaledAmount } from "@autonomynexus/monetary";
 
 export type VatCode =
   | "TVA20"

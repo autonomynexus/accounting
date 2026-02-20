@@ -3,7 +3,7 @@
  * Linear and declining balance per PCG
  */
 
-import { add, EUR, monetary, subtract, multiply, greaterThan, minimum } from "monetary";
+import { add, EUR, monetary, subtract, multiply, greaterThan, minimum } from "@autonomynexus/monetary";
 import type { MonetaryAmount } from "../models.js";
 import type {
   AmortizationLine,

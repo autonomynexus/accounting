@@ -1,5 +1,5 @@
 import { Effect, Schema } from "effect";
-import { add, EUR, isZero, monetary, subtract, type ScaledAmount } from "monetary";
+import { add, EUR, isZero, monetary, subtract, type ScaledAmount } from "@autonomynexus/monetary";
 import {
 	BANK_ACCOUNT,
 	VAT_COLLECTED_ACCOUNT,

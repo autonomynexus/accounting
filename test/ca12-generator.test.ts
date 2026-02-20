@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Effect, Layer } from "effect";
-import { EUR, monetary } from "monetary";
+import { EUR, monetary } from "@autonomynexus/monetary";
 import {
   Ca12GeneratorService,
   Ca12GeneratorServiceLayer,

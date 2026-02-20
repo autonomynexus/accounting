@@ -7,8 +7,8 @@
  * @see docs/plans/vat-annexes-data-model.md
  */
 
-import type { Monetary } from "monetary";
-import { EUR, monetary } from "monetary";
+import type { Monetary } from "@autonomynexus/monetary";
+import { EUR, monetary } from "@autonomynexus/monetary";
 import type {
   AcciseType,
   TicSectionType,

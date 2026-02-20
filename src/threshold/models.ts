@@ -1,4 +1,4 @@
-import type { Monetary } from "monetary";
+import type { Monetary } from "@autonomynexus/monetary";
 import { MICRO_THRESHOLDS, VAT_THRESHOLDS } from "../regime/regime-details.js";
 import type { ActivityType } from "../urssaf/rates.js";
 

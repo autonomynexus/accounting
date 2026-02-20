@@ -7,7 +7,7 @@
  */
 
 import type { MonetaryAmount } from "../models.js";
-import { greaterThan, monetary, EUR } from "monetary";
+import { greaterThan, monetary, EUR } from "@autonomynexus/monetary";
 
 // ============================================================================
 // Types

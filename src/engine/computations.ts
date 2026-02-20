@@ -5,7 +5,7 @@
  * from journal entries. Pure functions, no side effects.
  */
 
-import { add, EUR, monetary, subtract, isZero, greaterThan } from "monetary";
+import { add, EUR, monetary, subtract, isZero, greaterThan } from "@autonomynexus/monetary";
 import type { MonetaryAmount } from "../models.js";
 import type {
   EcritureComptable,

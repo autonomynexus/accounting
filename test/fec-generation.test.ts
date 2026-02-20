@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { monetary, EUR } from "monetary";
+import { monetary, EUR } from "@autonomynexus/monetary";
 import {
   generateFecRecords,
   exportFecToString,

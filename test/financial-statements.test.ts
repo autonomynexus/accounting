@@ -1,5 +1,5 @@
 import { Effect, Layer } from "effect";
-import { EUR, monetary } from "monetary";
+import { EUR, monetary } from "@autonomynexus/monetary";
 import { describe, expect, it } from "vitest";
 import {
 	BalanceSheetService,

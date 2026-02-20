@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Effect, Layer } from "effect";
-import { EUR, monetary } from "monetary";
+import { EUR, monetary } from "@autonomynexus/monetary";
 import type { AccountBalance } from "../src/models";
 import { AccountingDataPort } from "../src/ports";
 import {

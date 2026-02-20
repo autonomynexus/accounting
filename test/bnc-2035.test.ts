@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EUR, monetary } from "monetary";
+import { EUR, monetary } from "@autonomynexus/monetary";
 import { compute2035A, compute2035B, compute2035 } from "../src/bnc-2035/computation.js";
 
 const m = (euros: number) => monetary({ amount: Math.round(euros * 100), currency: EUR });

@@ -3,7 +3,7 @@
  * Computes forms 2050-2059 from trial balance
  */
 
-import { add, EUR, monetary, subtract, greaterThan } from "monetary";
+import { add, EUR, monetary, subtract, greaterThan } from "@autonomynexus/monetary";
 import type { MonetaryAmount } from "../models.js";
 import type { TrialBalance } from "../engine/models.js";
 import {

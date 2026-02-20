@@ -3,7 +3,7 @@
  * Computed from trial balance per PCG format
  */
 
-import { add, subtract } from "monetary";
+import { add, subtract } from "@autonomynexus/monetary";
 import type { MonetaryAmount } from "../models.js";
 import type { TrialBalance } from "../engine/models.js";
 import { getAccountPrefixBalance, getCreditBalance, getDebitBalance } from "../engine/computations.js";

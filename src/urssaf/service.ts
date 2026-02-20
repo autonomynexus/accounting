@@ -1,5 +1,5 @@
 import { Effect, Layer, Schema } from "effect";
-import { add, EUR, type Monetary, monetary, multiply, type ScaledAmount, subtract } from "monetary";
+import { add, EUR, type Monetary, monetary, multiply, type ScaledAmount, subtract } from "@autonomynexus/monetary";
 import type { AccountBalance } from "../models";
 import {
   AccountingDataPort,

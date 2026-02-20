@@ -1,5 +1,5 @@
-import type { Monetary } from "monetary";
-import { add, monetary, EUR } from "monetary";
+import type { Monetary } from "@autonomynexus/monetary";
+import { add, monetary, EUR } from "@autonomynexus/monetary";
 import { format } from "date-fns";
 import type {
   FecRecord,

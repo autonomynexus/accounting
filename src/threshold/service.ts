@@ -1,6 +1,6 @@
 import { endOfYear, startOfYear } from "date-fns";
 import { Effect, Layer } from "effect";
-import { EUR, type Monetary, monetary } from "monetary";
+import { EUR, type Monetary, monetary } from "@autonomynexus/monetary";
 import type { UserId } from "../models";
 import { AccountingDataPort, type AccountingDataError } from "../ports";
 import type { ActivityType } from "../urssaf/rates";

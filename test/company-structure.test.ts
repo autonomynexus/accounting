@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EUR, monetary } from "monetary";
+import { EUR, monetary } from "@autonomynexus/monetary";
 import { isPMEEligible, deriveISEligibilityFlags, type CompanyStructure, type Shareholder } from "../src/models/company-structure.js";
 
 const m = (euros: number) => monetary({ amount: euros * 100, currency: EUR });

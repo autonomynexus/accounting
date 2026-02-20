@@ -19,21 +19,15 @@ jobs:
         with:
           bun-version: latest
 
-      # Override local file: dep with GitHub ref for CI
+      # Override local file: dep with published package for CI
       - name: Install dependencies
         run: |
-          sed -i 's|"monetary": "file:../monetary"|"monetary": "github:autonomynexus/monetary-lib"|' package.json
-          bun install --no-save || {
-            # bun has a known cache bug with GitHub-referenced packages
-            # (ENOENT: failed opening cache/package/version dir)
-            # Verify the install actually succeeded by checking node_modules
-            if [ -d node_modules/monetary ] && [ -d node_modules/effect ]; then
-              echo "⚠️ bun install exited non-zero but packages are present — continuing"
-            else
-              echo "❌ bun install genuinely failed"
-              exit 1
-            fi
-          }
+          sed -i 's|"@autonomynexus/monetary": "file:../monetary"|"@autonomynexus/monetary": ">=0.1.0"|' package.json
+          echo '//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}' >> .npmrc
+          echo '@autonomynexus:registry=https://npm.pkg.github.com' >> .npmrc
+          bun install --no-save
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - run: bun run build
 

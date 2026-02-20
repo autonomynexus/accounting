@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EUR, monetary } from "monetary";
+import { EUR, monetary } from "@autonomynexus/monetary";
 import { computeIS, computeAcomptes, computeAcompteDates, applyDeficitReportEnAvant } from "../src/is-solde/index.js";
 
 const m = (euros: number) => monetary({ amount: euros * 100, currency: EUR });

@@ -1,4 +1,4 @@
-import { EUR, type Monetary, monetary } from "monetary";
+import { EUR, type Monetary, monetary } from "@autonomynexus/monetary";
 import type { ActivityGroupCode, RegimeCode, TaxSystem } from "../models.js";
 
 export type ThresholdConfig = {

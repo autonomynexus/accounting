@@ -1,5 +1,5 @@
 import { Effect, Layer, Schema } from "effect";
-import { add, EUR, type Monetary, monetary, subtract } from "monetary";
+import { add, EUR, type Monetary, monetary, subtract } from "@autonomynexus/monetary";
 import {
   VAT_COLLECTED_ACCOUNT,
   OTHER_TAXES_ACCOUNT,
