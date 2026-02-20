@@ -36,7 +36,7 @@
   "devDependencies": {
     "oxfmt": "^0.31.0",
     "oxlint": "^1.46.0",
-    "monetary": "file:../monetary",
+    "monetary": "github:autonomynexus/monetary-lib",
     "typescript": "^5.5.0"
   }
 }
