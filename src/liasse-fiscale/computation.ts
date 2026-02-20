@@ -438,9 +438,6 @@ function toPassifLineValue(line: BilanPassifLine): Form2051LineValue {
  * Lines not computed individually are omitted (Partial record).
  */
 export function form2050ToCerfa(form: Form2050): Form2050CerfaData {
-  const z = actifLine("", ZERO, ZERO);
-  const zv = toActifLineValue(z);
-
   return {
     // Immobilisations incorporelles → lines AA-AF grouped into single line
     // The simplified model doesn't split by sub-category; map to AE (Autres)
