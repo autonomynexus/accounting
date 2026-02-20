@@ -15,17 +15,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # Override local file: dep with GitHub ref for CI
+      - name: Install dependencies
+        run: |
+          sed -i 's|"monetary": "file:../monetary"|"monetary": "github:autonomynexus/monetary-lib"|' package.json
+          bun install --no-save || {
+            # bun has a known cache bug with GitHub-referenced packages
+            # (ENOENT: failed opening cache/package/version dir)
+            # Verify the install actually succeeded by checking node_modules
+            if [ -d node_modules/monetary ] && [ -d node_modules/effect ]; then
+              echo "⚠️ bun install exited non-zero but packages are present — continuing"
+            else
+              echo "❌ bun install genuinely failed"
+              exit 1
+            fi
+          }
+
+      - run: bun run build
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: https://npm.pkg.github.com
-
-      # Override local file: dep with GitHub ref for CI
-      - run: sed -i 's|"monetary": "file:../monetary"|"monetary": "github:autonomynexus/monetary-lib"|' package.json
-
-      - run: npm install --ignore-scripts
-
-      - run: npx tsc -p tsconfig.build.json
 
       - run: npm publish --no-git-checks
         env:
