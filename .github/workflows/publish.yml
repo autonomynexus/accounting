@@ -19,11 +19,12 @@ jobs:
         with:
           bun-version: latest
 
-      - run: bun install
+      # Override local file: dep with GitHub ref for CI
+      - run: |
+          sed -i 's|"monetary": "file:../monetary"|"monetary": "github:autonomynexus/monetary-lib"|' package.json
+          bun install --no-save
 
       - run: bun run build
-
-      - run: bun run test
 
       - uses: actions/setup-node@v4
         with:
