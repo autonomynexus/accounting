@@ -15,21 +15,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      # Override local file: dep with GitHub ref for CI
-      - run: |
-          sed -i 's|"monetary": "file:../monetary"|"monetary": "github:autonomynexus/monetary-lib"|' package.json
-          bun install --force --no-save
-
-      - run: bun run build
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: https://npm.pkg.github.com
+
+      # Override local file: dep with GitHub ref for CI
+      - run: sed -i 's|"monetary": "file:../monetary"|"monetary": "github:autonomynexus/monetary-lib"|' package.json
+
+      - run: npm install --ignore-scripts
+
+      - run: npx tsc -p tsconfig.build.json
 
       - run: npm publish --no-git-checks
         env:
