@@ -60,18 +60,18 @@ export function isPMEEligible(structure: CompanyStructure): PMEEligibilityResult
 
   // Condition 1: CA HT < €10M (CGI Art. 219-I-b)
   if (greaterThan(structure.chiffreAffairesHT, TEN_MILLION) || structure.chiffreAffairesHT.amount === TEN_MILLION.amount) {
-    reasons.push("❌ CA HT ≥ €10M — condition non remplie (CGI Art. 219-I-b)");
+    reasons.push("FAIL: CA HT ≥ €10M — condition non remplie (CGI Art. 219-I-b)");
     eligible = false;
   } else {
-    reasons.push("✅ CA HT < €10M");
+    reasons.push("OK: CA HT < €10M");
   }
 
   // Condition 2: Capital entièrement libéré (CGI Art. 219-I-b)
   if (greaterThan(structure.capitalSocial, structure.capitalLibere)) {
-    reasons.push("❌ Capital non entièrement libéré — condition non remplie (CGI Art. 219-I-b)");
+    reasons.push("FAIL: Capital non entièrement libéré — condition non remplie (CGI Art. 219-I-b)");
     eligible = false;
   } else {
-    reasons.push("✅ Capital entièrement libéré");
+    reasons.push("OK: Capital entièrement libéré");
   }
 
   // Condition 3: Capital détenu ≥75% par des personnes physiques (CGI Art. 219-I-b)
@@ -81,26 +81,26 @@ export function isPMEEligible(structure: CompanyStructure): PMEEligibilityResult
 
   if (naturalPersonPercentage < 75) {
     reasons.push(
-      `❌ Capital détenu à ${naturalPersonPercentage.toFixed(1)}% par des personnes physiques (< 75%) — condition non remplie (CGI Art. 219-I-b)`,
+      `FAIL: Capital détenu à ${naturalPersonPercentage.toFixed(1)}% par des personnes physiques (< 75%) — condition non remplie (CGI Art. 219-I-b)`,
     );
     eligible = false;
   } else {
-    reasons.push(`✅ Capital détenu à ${naturalPersonPercentage.toFixed(1)}% par des personnes physiques (≥ 75%)`);
+    reasons.push(`OK: Capital détenu à ${naturalPersonPercentage.toFixed(1)}% par des personnes physiques (≥ 75%)`);
   }
 
   // Condition 4: Effectif < 50 (EU PME, Annexe I Reg. 651/2014)
   if (structure.effectifMoyen >= 50) {
-    reasons.push(`⚠️ Effectif moyen = ${structure.effectifMoyen} (≥ 50) — critère EU PME non rempli`);
+    reasons.push(`WARN: Effectif moyen = ${structure.effectifMoyen} (≥ 50) — critère EU PME non rempli`);
     // Note: this is EU PME, not strictly required for IS taux réduit per CGI 219-I-b
   } else {
-    reasons.push(`✅ Effectif moyen = ${structure.effectifMoyen} (< 50)`);
+    reasons.push(`OK: Effectif moyen = ${structure.effectifMoyen} (< 50)`);
   }
 
   // Condition 5: Total bilan < €10M (EU PME, Annexe I Reg. 651/2014)
   if (greaterThan(structure.totalBilan, TEN_MILLION) || structure.totalBilan.amount === TEN_MILLION.amount) {
-    reasons.push("⚠️ Total bilan ≥ €10M — critère EU PME non rempli");
+    reasons.push("WARN: Total bilan ≥ €10M — critère EU PME non rempli");
   } else {
-    reasons.push("✅ Total bilan < €10M");
+    reasons.push("OK: Total bilan < €10M");
   }
 
   return { eligible, reasons };
