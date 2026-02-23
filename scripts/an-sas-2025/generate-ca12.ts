@@ -15,7 +15,7 @@ import {
   type JournalLineModel,
   type Period,
 } from "@autonomynexus/accounting";
-import { monetary, EUR, toDecimal } from "monetary";
+import { monetary, EUR, toDecimal } from "@autonomynexus/monetary";
 import { COMPANY, EXERCICE, TVA } from "./data.js";
 
 // ============================================================================

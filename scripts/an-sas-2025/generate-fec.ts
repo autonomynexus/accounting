@@ -9,7 +9,7 @@
  * Output: 943173864FEC20251231.txt
  */
 import { generateFEC, type FECEntry } from "@autonomynexus/accounting";
-import { toDecimal, monetary, EUR } from "monetary";
+import { toDecimal, monetary, EUR } from "@autonomynexus/monetary";
 import { COMPANY, EXERCICE, EXPENSES, BANK } from "./data.js";
 import { writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
