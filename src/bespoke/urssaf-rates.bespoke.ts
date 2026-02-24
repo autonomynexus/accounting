@@ -27,7 +27,7 @@ export function makeBespokeUrssafRatesLayer(rates: Map<string, ScaledAmount<numb
 
       getAllRatesForActivity: (activityType: ActivityType, date: Date) => {
         const result = new Map<RateType, ScaledAmount<number>>();
-        const rateTypes: RateType[] = ["base", "acre_year1", "versement_liberatoire", "cfp"];
+        const rateTypes: RateType[] = ["base", "acre_year1", "acre_post_july2026", "versement_liberatoire", "cfp"];
         for (const rt of rateTypes) {
           const rate = rates.get(`${activityType}:${rt}`);
           if (rate !== undefined) {
