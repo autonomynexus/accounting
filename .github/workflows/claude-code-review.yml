@@ -1,0 +1,77 @@
+name: PR Audit
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  code-review:
+    name: Code Review (Security/Correctness)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: '--allowed-tools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"'
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            ## Code Review — Accounting Library
+
+            This is `@autonomynexus/accounting`, a standalone TypeScript library for French accounting (PCG, FEC, BNC 2035, liasse fiscale, VAT, URSSAF, financial statements, amortization). Pure functions, no framework, no database.
+
+            Review this PR for correctness, security, and quality.
+
+            ### Correctness (Critical for accounting)
+
+            - **Tax/accounting calculations** — verify formulas match French tax law (CGI, BOI)
+            - **Rounding** — monetary values must use banker's rounding or explicit rounding rules
+            - **Off-by-one errors** in date ranges, fiscal periods, thresholds
+            - **Threshold logic** — check boundary conditions (<=, <, >=, >)
+            - **FEC compliance** — ISO 8859-15 encoding, 18 mandatory fields, DGFiP format
+            - **PCG account codes** — verify they match Plan Comptable Général
+
+            ### Security
+
+            - No hardcoded secrets or credentials
+            - No unsafe type assertions (`as any`)
+            - Input validation on public API functions
+
+            ### Quality
+
+            - Type safety — no `any` types
+            - Edge cases handled (zero amounts, empty arrays, boundary dates)
+            - Pure functions — no side effects in computation functions
+
+            ### Output Rules
+
+            - ONLY report issues that need fixing
+            - Do NOT list things that are correct
+            - Do NOT praise code or list what passed
+            - Pay special attention to tax calculation accuracy
+
+            Use `gh pr comment` to post findings. Format:
+
+            ```markdown
+            ## Code Review
+
+            [For each issue:]
+            ### [CRITICAL|HIGH|MEDIUM|LOW]: Brief description
+            **File**: path:line
+            **Issue**: What's wrong
+            **Fix**: How to fix
+
+            [Or if clean:]
+            No issues found.
+            ```
