@@ -102,7 +102,7 @@ export const UrssafServiceLayer = Layer.effect(
 
     const computeDeclaration: UrssafServiceInterface["computeDeclaration"] = (input) =>
       Effect.gen(function* () {
-        const { userId, period, activityType, hasAcre, hasVersementLiberatoire, regimeCode } =
+        const { userId, period, activityType, hasAcre, activityStartDate, hasVersementLiberatoire, regimeCode } =
           input;
 
         const revenue = yield* getRevenueBreakdown({ userId, period });
@@ -113,7 +113,7 @@ export const UrssafServiceLayer = Layer.effect(
             : subtract(revenue.revenueTotal, revenue.expenseTotal);
 
         const rateDate = period.startDate;
-        const contributionRateType = getAcreRateType(hasAcre);
+        const contributionRateType = getAcreRateType(hasAcre, activityStartDate);
 
         const [urssafRate, cfpRate, vlRate] = yield* Effect.all([
           ratesPort.getRate(activityType, contributionRateType, rateDate),
@@ -163,7 +163,8 @@ export const UrssafServiceLayer = Layer.effect(
         );
 
         const needsBaseRate = inputs.some((i) => !i.hasAcre);
-        const needsAcreRate = inputs.some((i) => i.hasAcre);
+        const needsAcrePreReform = inputs.some((i) => i.hasAcre && getAcreRateType(i.hasAcre, i.activityStartDate) === "acre_year1");
+        const needsAcrePostReform = inputs.some((i) => i.hasAcre && getAcreRateType(i.hasAcre, i.activityStartDate) === "acre_post_july2026");
 
         const ratePromises: Effect.Effect<ScaledAmount<number>, RateNotFoundError>[] = [];
         const rateKeys: string[] = [];
@@ -172,9 +173,13 @@ export const UrssafServiceLayer = Layer.effect(
           ratePromises.push(ratesPort.getRate(first.activityType, "base", earliestDate));
           rateKeys.push("base");
         }
-        if (needsAcreRate) {
+        if (needsAcrePreReform) {
           ratePromises.push(ratesPort.getRate(first.activityType, "acre_year1", earliestDate));
           rateKeys.push("acre_year1");
+        }
+        if (needsAcrePostReform) {
+          ratePromises.push(ratesPort.getRate(first.activityType, "acre_post_july2026", earliestDate));
+          rateKeys.push("acre_post_july2026");
         }
         ratePromises.push(ratesPort.getRate(first.activityType, "cfp", earliestDate));
         rateKeys.push("cfp");
@@ -217,7 +222,7 @@ export const UrssafServiceLayer = Layer.effect(
               ? revenue.revenueTotal
               : subtract(revenue.revenueTotal, revenue.expenseTotal);
 
-          const contributionRateType = getAcreRateType(input.hasAcre);
+          const contributionRateType = getAcreRateType(input.hasAcre, input.activityStartDate);
           const urssafRate = rateMap.get(contributionRateType);
           const cfpRate = rateMap.get("cfp");
           if (!(urssafRate && cfpRate)) {

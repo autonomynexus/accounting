@@ -9,6 +9,7 @@ export type ComputeUrssafDeclarationInput = {
   readonly period: Period;
   readonly activityType: ActivityType;
   readonly hasAcre: boolean;
+  readonly activityStartDate: Date;
   readonly hasVersementLiberatoire: boolean;
   readonly regimeCode: "micro" | "reel";
 };
