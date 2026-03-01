@@ -1,0 +1,49 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "typescript", "oxc", "import"],
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "eslint/no-unused-expressions": "off",
+    "eslint/max-params": "off",
+    "eslint/no-console": "error",
+    "typescript/no-explicit-any": "error",
+    "eslint/no-nested-ternary": "error",
+    "import/no-namespace": "error",
+    "oxc/no-barrel-file": "error"
+  },
+  "overrides": [
+    {
+      "files": ["src/index.ts"],
+      "rules": {
+        "oxc/no-barrel-file": "off"
+      }
+    },
+    {
+      "files": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx"
+      ],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "eslint/no-console": "off"
+      },
+      "globals": {
+        "describe": "readonly",
+        "it": "readonly",
+        "expect": "readonly",
+        "beforeEach": "readonly",
+        "afterEach": "readonly",
+        "beforeAll": "readonly",
+        "afterAll": "readonly",
+        "vi": "readonly",
+        "test": "readonly"
+      }
+    }
+  ]
+}

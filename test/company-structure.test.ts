@@ -23,20 +23,20 @@ describe("isPMEEligible", () => {
     const result = isPMEEligible(makeStructure());
     expect(result.eligible).toBe(true);
     expect(result.reasons).toHaveLength(5);
-    expect(result.reasons.every((r) => r.startsWith("✅"))).toBe(true);
+    expect(result.reasons.every((r) => r.startsWith("OK: "))).toBe(true);
   });
 
   it("ineligible when CA >= 10M", () => {
     const result = isPMEEligible(makeStructure({ chiffreAffairesHT: m(10_000_000) }));
     expect(result.eligible).toBe(false);
-    expect(result.reasons[0]).toContain("❌");
+    expect(result.reasons[0]).toContain("FAIL: ");
     expect(result.reasons[0]).toContain("CA HT");
   });
 
   it("ineligible when capital not fully paid up", () => {
     const result = isPMEEligible(makeStructure({ capitalLibere: m(5000) }));
     expect(result.eligible).toBe(false);
-    expect(result.reasons[1]).toContain("❌");
+    expect(result.reasons[1]).toContain("FAIL: ");
     expect(result.reasons[1]).toContain("libéré");
   });
 
@@ -47,7 +47,7 @@ describe("isPMEEligible", () => {
     ];
     const result = isPMEEligible(makeStructure({ shareholders }));
     expect(result.eligible).toBe(false);
-    expect(result.reasons[2]).toContain("❌");
+    expect(result.reasons[2]).toContain("FAIL: ");
     expect(result.reasons[2]).toContain("40.0%");
   });
 
@@ -64,14 +64,14 @@ describe("isPMEEligible", () => {
     const result = isPMEEligible(makeStructure({ effectifMoyen: 55 }));
     // Still eligible for CGI 219-I-b (EU PME is informational)
     expect(result.eligible).toBe(true);
-    expect(result.reasons[3]).toContain("⚠️");
+    expect(result.reasons[3]).toContain("WARN: ");
     expect(result.reasons[3]).toContain("55");
   });
 
   it("shows EU PME warnings for total bilan >= 10M", () => {
     const result = isPMEEligible(makeStructure({ totalBilan: m(15_000_000) }));
     expect(result.eligible).toBe(true);
-    expect(result.reasons[4]).toContain("⚠️");
+    expect(result.reasons[4]).toContain("WARN: ");
   });
 
   it("multiple conditions can fail simultaneously", () => {
@@ -81,7 +81,7 @@ describe("isPMEEligible", () => {
       shareholders: [{ name: "Corp", type: "legal_entity", sharePercentage: 100 }],
     }));
     expect(result.eligible).toBe(false);
-    const failures = result.reasons.filter((r) => r.startsWith("❌"));
+    const failures = result.reasons.filter((r) => r.startsWith("FAIL: "));
     expect(failures).toHaveLength(3);
   });
 });
