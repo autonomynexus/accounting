@@ -18,7 +18,7 @@ import {
   form2053ToCerfa,
   CERFA_LINE_LABELS,
 } from "@autonomynexus/accounting";
-import { toDecimal, monetary, EUR } from "monetary";
+import { toDecimal, monetary, EUR } from "@autonomynexus/monetary";
 import { COMPANY, EXERCICE, REVENUE, BANK, EXPENSES } from "./data.js";
 
 const ZERO = monetary({ amount: 0, currency: EUR });

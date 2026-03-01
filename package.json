@@ -34,7 +34,7 @@
     "@autonomynexus/monetary": ">=0.1.0"
   },
   "devDependencies": {
-    "@autonomynexus/monetary": "file:../monetary",
+    "@autonomynexus/monetary": "^0.1.0",
     "oxfmt": "^0.31.0",
     "oxlint": "^1.46.0",
     "typescript": "^5.5.0"

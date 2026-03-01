@@ -4,7 +4,7 @@
  * Fill in your actual figures here. All amounts in EUR cents (use monetary()).
  * This file is the single source of truth for generating all filings.
  */
-import { EUR, monetary, type Monetary } from "monetary";
+import { EUR, monetary, type Monetary } from "@autonomynexus/monetary";
 import type { CompanyStructure, Shareholder } from "@autonomynexus/accounting";
 
 // ============================================================================

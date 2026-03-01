@@ -7,7 +7,7 @@
  * Deadline: ~April 15, 2026
  */
 import { computeIS, isPMEEligible, deriveISEligibilityFlags } from "@autonomynexus/accounting";
-import { toDecimal } from "monetary";
+import { toDecimal } from "@autonomynexus/monetary";
 import { COMPANY, EXERCICE, COMPANY_STRUCTURE, REVENUE, IS } from "./data.js";
 
 // ============================================================================
