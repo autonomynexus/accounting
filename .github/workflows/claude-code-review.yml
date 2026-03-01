@@ -6,7 +6,7 @@ on:
 
 jobs:
   code-review:
-    name: Code Review (Security/Correctness)
+    name: Code Review (Correctness/Effect/Security)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,28 +29,34 @@ jobs:
 
             ## Code Review — Accounting Library
 
-            This is `@autonomynexus/accounting`, a standalone TypeScript library for French accounting (PCG, FEC, BNC 2035, liasse fiscale, VAT, URSSAF, financial statements, amortization). Pure functions, no framework, no database.
+            This is `@autonomynexus/accounting`, a standalone TypeScript library for French accounting built with **Effect.ts**. It covers PCG, FEC, BNC 2035, liasse fiscale, VAT, URSSAF, financial statements, amortization. No database — pure computation library with Effect services and ports pattern.
 
-            Review this PR for correctness, security, and quality.
+            Review this PR for correctness, Effect patterns, and security.
 
-            ### Correctness (Critical for accounting)
+            ### Accounting Correctness (Critical)
 
             - **Tax/accounting calculations** — verify formulas match French tax law (CGI, BOI)
-            - **Rounding** — monetary values must use banker's rounding or explicit rounding rules
+            - **Rounding** — monetary values must use proper rounding rules
             - **Off-by-one errors** in date ranges, fiscal periods, thresholds
             - **Threshold logic** — check boundary conditions (<=, <, >=, >)
             - **FEC compliance** — ISO 8859-15 encoding, 18 mandatory fields, DGFiP format
             - **PCG account codes** — verify they match Plan Comptable Général
+            - **Rate tables** — URSSAF rates, IS brackets, TVA rates must be current
 
-            ### Security
+            ### Effect.ts Patterns
 
-            - No hardcoded secrets or credentials
-            - No unsafe type assertions (`as any`)
+            - Services use `Effect.Tag` (not Effect.Service)
+            - Use `Effect.gen` for sequencing, not nested flatMaps
+            - Errors are typed — use specific error types, not generic Error
+            - Ports pattern — data access via port interfaces, not direct imports
+            - No `Effect.runSync` or `Effect.runPromise` in library code (consumers run effects)
+            - Use `Effect.fn` for traced functions where appropriate
+
+            ### Security & Quality
+
+            - No `any` types or `as any` casts
+            - No hardcoded secrets
             - Input validation on public API functions
-
-            ### Quality
-
-            - Type safety — no `any` types
             - Edge cases handled (zero amounts, empty arrays, boundary dates)
             - Pure functions — no side effects in computation functions
 
